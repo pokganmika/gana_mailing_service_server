@@ -1,0 +1,1 @@
+# gana_mailing_service_server
