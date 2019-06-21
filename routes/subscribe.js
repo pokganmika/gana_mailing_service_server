@@ -53,25 +53,41 @@ router.get('/', async (req, res, next) => {
 
 router.post('/add', async (req, res, next) => { 
   console.log("user::save::check", req.body);
-  const input = req.body;
+  const { email, type, subscribed, created_at } = req.body;
+  const input = {
+    email, type, subscribed, created_at
+  };
   const params = {
     TableName: 'SubscribeTable',
     Item: input
   };
-  if (Object.keys(input).length === 4) {
-    await docClient.put(params, (err, data) => {
-      if (err) {
-        console.log("user::save::error - ", JSON.stringify(err, null, 2));
-        res.send(err);
-      } else {
-        console.log("user::save::success");
-        res.send('create_success');
-      }
-    })
-  } else { 
-    console.log("user::save::error - Not Enough Data")
-    res.send('Not enough Data')
-  }
+
+  await docClient.put(params, (err, data) => {
+    if (err) {
+      console.log("user::save::error - ", JSON.stringify(err, null, 2));
+      res.send(err);
+    } else {
+      console.log("user::save::success");
+      res.send('create_success');
+    }
+  })
+
+  //-----
+
+  // if (Object.keys(input).length === 4) {
+  //   await docClient.put(params, (err, data) => {
+  //     if (err) {
+  //       console.log("user::save::error - ", JSON.stringify(err, null, 2));
+  //       res.send(err);
+  //     } else {
+  //       console.log("user::save::success");
+  //       res.send('create_success');
+  //     }
+  //   })
+  // } else { 
+  //   console.log("user::save::error - Not Enough Data")
+  //   res.send('Not enough Data')
+  // }
 })
 
 router.post('/delete', async (req, res, next) => { 
@@ -94,25 +110,30 @@ router.post('/delete', async (req, res, next) => {
   })
 })
 
+//TODO: value problem (maybe returnvalue)
 router.post('/update', async (req, res, next) => { 
   console.log("user::update::check", req.body);
-  //TODO: need email and subscribe
+  const { email, type, subscribed, created_at } = req.body;
   const params = {
     TableName: 'SubscribeTable',
     Key: {
       email
     },
     UpdateExpression: "set subscribed = :boolValue",
+    // UpdateExpression: "set subscribed = :boolValue, email = :emailStrValue, type = :typeValue, created_at = :timeStrValue",
     ExpressionAttributeValues: {
-      ":boolValue": ""
+      ":boolValue": subscribed,
+      // ":emailStrValue": email,
+      // ":typeValue": type,
+      // ":timeStrValue": created_at
     },
-    ReturnValues: "UPDATE_NEW"
+    ReturnValues: "UPDATED_NEW"
   }
-  await docClient.update(params, (err, data) => { 
+  await docClient.update(params, (err, data) => {
     if (err) {
       console.log("user::modify::error - ", JSON.stringify(err, null, 2));
       res.send(err)
-    } else { 
+    } else {
       console.log("user::modify::success");
       res.send("update_success");
     }
