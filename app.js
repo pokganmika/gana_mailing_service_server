@@ -8,6 +8,7 @@ require('dotenv').config();
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
+const subscribeRouter = require('./routes/subscribe');
 //TODO: add router
 
 const sequelize = require('./models').sequelize;
@@ -30,6 +31,7 @@ app.use(express.static(path.join(__dirname, 'dist')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/subscribe', subscribeRouter);
 
 app.use('*', function (req, res) {
   res.sendFile(path.join(__dirname, './dist/index.html'))
