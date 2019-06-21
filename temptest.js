@@ -14,7 +14,7 @@ AWS.config.update(awsConfig);
 
 // AWS.config.update({ region: 'ap-northeast-2' });
 
-let docClient = new AWS.DynamoDB.DocumentClient();
+let docClient = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 
 let a = function () { 
   var params = {
