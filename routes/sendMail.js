@@ -13,9 +13,9 @@ const resultFile = fs.createWriteStream('emailResult.txt');
 
 const AWS = require('aws-sdk');
 let awsConfig = {
-  region: "ap-northeast-2",
-  accessKeyId: "AKIAJE7AXS4OATS2VSZA",
-  secretAccessKey: "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"
+  region: process.env.REGION,
+  accessKeyId: process.env.ACCESS_KEY_ID,
+  secretAccessKey: process.env.SECRET_ACCESS_KEY
 }
 AWS.config.update(awsConfig);
 
@@ -24,6 +24,11 @@ let docClient = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 
 router.get('/', async (req, res, next) => { 
   res.send("router check +++++")
+})
+
+router.get('/test', async (req, res, next) => { 
+  // res.send("router check *****")
+  res.send(process.env.ACCESS_KEY_ID);
 })
 
 module.exports = router;
