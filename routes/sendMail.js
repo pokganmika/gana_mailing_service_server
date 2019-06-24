@@ -26,9 +26,9 @@ router.get('/', async (req, res, next) => {
   res.send("router check +++++")
 })
 
-router.get('/test', async (req, res, next) => { 
+router.post('/test', async (req, res, next) => { 
   // res.send("router check *****")
-  res.send(process.env.ACCESS_KEY_ID);
+  res.send(process.env.SENDGRID_API_KEY)
 })
 
 module.exports = router;

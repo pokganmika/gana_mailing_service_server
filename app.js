@@ -5,7 +5,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cors = require('cors');
 require('dotenv').config({path: './.env'});
-// console.log('env : ',process.env.REGION)
+
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const subscribeRouter = require('./routes/subscribe');
