@@ -6,11 +6,9 @@ require('dotenv').config();
 const api_key = process.env.SENDGRID_API_KEY;
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(api_key)
-var resultFile = fs.createWriteStream('emailResult.txt');
-var email_template = require('../readfile');
-// var email_template = fs.readFileSync('../template/email-template.html').toString();
-//TODO: template error!!
-//https://stackoverflow.com/questions/48469666/error-enoent-no-such-file-or-directory-open-moviedata-json?rq=1
+const resultFile = fs.createWriteStream('emailResult.txt');
+const email_template = require('../readfile');
+// const email_template = fs.readFileSync('../template/email-template.html').toString();
 // const email_template = fs.readFileSync('email-template-main.html').toString();
 
 const mail_header = {
@@ -25,7 +23,7 @@ const mail_header = {
 };
 
 const AWS = require('aws-sdk');
-let awsConfig = {
+const awsConfig = {
   region: process.env.REGION,
   accessKeyId: process.env.ACCESS_KEY_ID,
   secretAccessKey: process.env.SECRET_ACCESS_KEY
@@ -33,10 +31,86 @@ let awsConfig = {
 AWS.config.update(awsConfig);
 
 const TableName = "SubscribeTable";
-let docClient = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
+const docClient = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 
-router.get('/', async (req, res, next) => { 
-  res.send("router check +++++")
+// const sendMail = async (dbData, reqData) => { 
+//   const { 
+//     Items,
+//     Count,
+//     ScannedCount
+//   } = dbData;
+//   const { 
+//     emailTitle,
+//     mainTitle,
+//     detailTitleEng,
+//     textEng,
+//     detailTitleKor,
+//     textKor
+//   } = reqData;
+// }
+
+router.post('/', async (req, res, next) => {
+  const params = {
+    // TableName: 'SubscribeTable'
+    TableName
+  };
+
+  await docClient.scan(params, async (err, data) => { 
+    if (err) {
+      console.log("SubscribeTable::sendmail::describeTable::error - " + JSON.stringify(err, null, 2))
+    } else { 
+      console.log("SubscribeTable::sendmail::describeTable::success - " + JSON.stringify(data, null, 2))
+      const { Items, Count, ScannedCount } = data;
+      // console.log('check this :: ', Items);
+
+      const email = [];
+      Items.forEach(emails => email.push({ email: emails.email }));
+      console.log('forEach::check:: ', email);
+
+      const {
+        emailTitle,
+        mainTitle,
+        detailTitleEng,
+        textEng,
+        detailTitleKor,
+        textKor
+      } = req.body;
+    
+      email.forEach(async email => { 
+        console.log('forEach::check:: ', email);
+        const msg = {
+          from: 'GanaProject <no-reply@ganacoin.io>',
+          personalizations: [
+            {
+              to: email,
+              dynamic_template_data: {
+                subject: emailTitle,
+                mainTitle,
+                detailTitleEng,
+                textEng,
+                detailTitleKor,
+                textKor
+              },
+            }
+          ],
+          template_id: "d-ab71c11eb2ab4c04aaaaf865b33d82ed"
+        };
+        await sgMail
+          .send(msg)
+          .then(res => { 
+            // res.send("mail sending success")
+            console.log("mail::send::success::")
+          })
+          .catch(err => {
+            // res.send("mail sendding fail")
+            console.log("mail::send::error::", err)
+          })
+
+      })
+
+    }
+  })
+
 })
 
 router.post('/test', async (req, res, next) => { 
@@ -48,18 +122,12 @@ router.post('/test', async (req, res, next) => {
     textEng,
     detailTitleKor,
     textKor } = req.body;
-  // console.log('sendmail::test::req.body -> ', req.body);
-  // console.log('sendmail::test::req.body.email -> ', req.body.email);
   console.log('sendmail::test:: check -> ', email, emailTitle);
   const msg = {
     from: 'GanaProject <no-reply@ganacoin.io>',
     personalizations: [
       {
-        to: [
-          {
-            email
-          }
-        ],
+        to: [{ email }],
         dynamic_template_data: {
           subject: emailTitle,
           mainTitle,
@@ -85,6 +153,14 @@ router.post('/test', async (req, res, next) => {
   };
   await sgMail
     .send(msg)
+    .then(res => { 
+      res.send("testmail sending success")
+      console.log("testmail::send::success::")
+    })
+    .catch(err => {
+      res.send("testmail sendding fail")
+      console.log("testmail::send::error::", err)
+    })
     // .then(res => console.log('res::check::', res))
     // .catch(err => console.log('err::check::', err))
 
