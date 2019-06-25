@@ -58,6 +58,7 @@ var DBSCAN = function (params) {
         console.log(e)
     })
 };
+
 function clone(obj) {
     if (obj === null || typeof (obj) !== 'object')
         return obj;
