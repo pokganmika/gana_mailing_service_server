@@ -121,9 +121,13 @@ router.post('/test', async (req, res, next) => {
     mainTitle,
     detailTitleEng,
     textEng,
+    textEngOp,
     detailTitleKor,
-    textKor } = req.body;
-  console.log('sendmail::test:: check -> ', email, emailTitle);
+    textKor,
+    textKorOp,
+    linkEng,
+    linkKor
+  } = req.body;
   const msg = {
     from: 'GanaProject <no-reply@ganacoin.io>',
     personalizations: [
