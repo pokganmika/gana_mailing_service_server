@@ -114,6 +114,7 @@ router.post('/', async (req, res, next) => {
 })
 
 router.post('/test', async (req, res, next) => { 
+  console.log('sendmail::test::data::check:: ----- > : ', req.body);
   const {
     email,
     emailTitle,
