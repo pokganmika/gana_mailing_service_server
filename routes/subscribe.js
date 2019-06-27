@@ -3,7 +3,7 @@ const router = express.Router();
 require('dotenv').config();
 
 const AWS = require('aws-sdk');
-let awsConfig = {
+const awsConfig = {
   region: process.env.REGION,
   accessKeyId: process.env.ACCESS_KEY_ID,
   secretAccessKey: process.env.SECRET_ACCESS_KEY
@@ -18,7 +18,7 @@ AWS.config.update(awsConfig);
 
 // AWS.config.update({ region: 'ap-northeast-2' });
 
-let docClient = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
+const docClient = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 
 // let DbScan = function () {
 //   const params = {

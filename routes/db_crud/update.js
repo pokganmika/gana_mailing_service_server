@@ -1,6 +1,6 @@
 require('dotenv').config();
-var AWS = require('aws-sdk');
-let awsConfig = {
+const AWS = require('aws-sdk');
+const awsConfig = {
   // region: process.env.REGION,
   // accessKeyId: process.env.ACCESS_KEY_ID,
   // secretAccessKey: process.env.SECRET_ACCESS_KEY
@@ -15,9 +15,9 @@ AWS.config.update(awsConfig);
 
 // AWS.config.update({ region: 'ap-northeast-2' });
 
-let docClient = new AWS.DynamoDB.DocumentClient();
+const docClient = new AWS.DynamoDB.DocumentClient();
 
-let modify = function () { 
+const modify = function () { 
   var params = {
     TableName: 'SubscribeTable',
     Key: {
