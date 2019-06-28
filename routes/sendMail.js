@@ -113,11 +113,7 @@ const editTemplate = data => {
 }
 
 router.post('/', async (req, res, next) => {
-  console.log('::sendmail::req.body::check ---> ', req.body);
-  const params = {
-    TableName
-  };
-
+  const params = { TableName };
   const html = editTemplate(req.body);
 
   await docClient.scan(params, async (err, data) => { 
@@ -129,36 +125,21 @@ router.post('/', async (req, res, next) => {
       // console.log('check this :: ', Items);
 
       const email = [];
-      Items.forEach(emails => email.push({ email: emails.email }));
+      Items.forEach(emails =>
+        emails.subscribed && email.push({ email: emails.email })
+      );
       console.log('forEach::check:: ', email);
 
-      const {
-        emailTitle,
-        mainTitle,
-        detailTitleEng,
-        textEng,
-        detailTitleKor,
-        textKor
-      } = req.body;
+      const { emailTitle } = req.body;
     
       email.forEach(async email => { 
         console.log('forEach::check:: ', email);
         const msg = {
+          to: email,
           from: 'GanaProject <no-reply@ganacoin.io>',
-          personalizations: [
-            {
-              to: email,
-              dynamic_template_data: {
-                subject: emailTitle,
-                mainTitle,
-                detailTitleEng,
-                textEng,
-                detailTitleKor,
-                textKor
-              },
-            }
-          ],
-          template_id: "d-ab71c11eb2ab4c04aaaaf865b33d82ed"
+          subject: emailTitle,
+          text: emailTitle,
+          html
         };
         await sgMail
           .send(msg)
