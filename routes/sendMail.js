@@ -115,6 +115,28 @@ const tagFilter = text => {
 }
 
 const infoMailOrigin = '<a href="mailto:info@ganacoin.io" style="color: white;">info@ganacoin.io</a>';
+const addition = '&nbsp;|&nbsp;';
+
+const setSeg = arr => {
+  if (arr.length !== 0) { 
+    const tempArr = arr.map(e => `<a href=${e.url} target="_blank" style="color: white; text-decoration: underline;">${e.title}</a>`)
+    if (tempArr.length === 1) { 
+      return tempArr[0];
+    }
+    return tempArr.join(addition);
+    // return tempArr.join('&nbsp;|&nbsp;');
+  }
+}
+
+const setLink = arr => { 
+  if (arr.length !== 0) { 
+    const tempArr = arr.map(e => `<a href=${e.url} target="_blank" style="color: white; text-decoration: underline;">${e.title}</a>`)
+    if (tempArr.length === 1) { 
+      return tempArr[0];
+    }
+    return tempArr.join('<br>');
+  }
+}
 
 router.post('/test', async (req, res, next) => { 
   console.log('sendmail::test::data::check:: ----- > : ', req.body);
@@ -125,20 +147,30 @@ router.post('/test', async (req, res, next) => {
     detailTitleEng,
     detailTitleKor,
     infoMail,
+    linkEng,
+    linkKor,
   } = req.body;
 
   let {
     textEng,
     textEngOp,
     textKor,
-    textKorOp
+    textKorOp,
   } = req.body;
   console.log('::first::check:: ---> ', email, emailTitle);
-
+  console.log('::second::check::link:: ---> ', linkEng)
   textEng = tagFilter(textEng);
   textEngOp = tagFilter(textEngOp);
   textKor = tagFilter(textKor);
   textKorOp = tagFilter(textKorOp);
+
+  // console.log('::final::check::link::mapping:: ---> ',linkEng.segment.map(e => `<a href=${e.url} target="_blank" style="color: white; text-decoration: underline;">${e.title}</a>`))
+  console.log('::final::check::link::mapping:: ---> ', setSeg(linkEng.segment));
+
+  const segE = setSeg(linkEng.segment);
+  const segK = setSeg(linkKor.segment);
+  const linkE = setLink(linkEng.link);
+  const linkK = setLink(linkKor.link);
 
   let html = email_template;
   html = html.replace("[Unsubscribe]", "<%asm_group_unsubscribe_raw_url%>");
@@ -150,8 +182,14 @@ router.post('/test', async (req, res, next) => {
   html = html.replace("<!-- {{ textKor }} -->", textKor);
   html = html.replace("<!-- {{ textKorOp }} -->", textKorOp);
 
+  html = html.replace("<!-- {{ segE }} -->", segE);
+  html = html.replace("<!-- {{ segK }} -->", segK);
+  html = html.replace("<!-- {{ linkE }} -->", linkE);
+  html = html.replace("<!-- {{ linkK }} -->", linkK);
+
   if (infoMail) {
-    html = html.replace("<!-- {{ infoMail }} -->", infoMailOrigin);
+    html = html.replace("<!-- {{ infoMailE }} -->", infoMailOrigin);
+    html = html.replace("<!-- {{ infoMailK }} -->", infoMailOrigin);
   }
 
   console.log('html::sendmail::typecheck:: --->', typeof html);
@@ -163,17 +201,17 @@ router.post('/test', async (req, res, next) => {
     text: emailTitle,
     html
   };
-  
-  // await sgMail
-  //   .send(msg)
-  //   .then(data => { 
-  //     res.send("testmail sending success")
-  //     console.log("testmail::send::success::")
-  //   })
-  //   .catch(err => {
-  //     res.send("testmail sendding fail")
-  //     console.log("testmail::send::error::", err)
-  //   })
+
+  await sgMail
+    .send(msg)
+    .then(data => { 
+      res.send("testmail sending success")
+      console.log("testmail::send::success::")
+    })
+    .catch(err => {
+      res.send("testmail sendding fail")
+      console.log("testmail::send::error::", err)
+    })
 })
 
 module.exports = router;
