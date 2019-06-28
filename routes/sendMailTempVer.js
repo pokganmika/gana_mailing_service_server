@@ -105,14 +105,13 @@ router.post('/', async (req, res, next) => {
             res.send("mail sendding fail")
             console.log("mail::send::error::", err)
           })
+
       })
+
     }
   })
-})
 
-const tagFilter = text => {
-  return text.split('\n').map(e => `<p>${e}</p>`).join('');
-}
+})
 
 router.post('/test', async (req, res, next) => { 
   console.log('sendmail::test::data::check:: ----- > : ', req.body);
@@ -134,51 +133,33 @@ router.post('/test', async (req, res, next) => {
   } = req.body;
   console.log('::first::check:: ---> ', email, emailTitle);
   console.log('::second::check:: ---> ', linkETitle, linkKTitle);
-
-  textEng = tagFilter(textEng);
-  textEngOp = tagFilter(textEngOp);
-  textKor = tagFilter(textKor);
-  textKorOp = tagFilter(textKorOp);
-
-  let html = email_template;
-  html = html.replace("[Unsubscribe]", "<%asm_group_unsubscribe_raw_url%>")
-  html = html.replace("<!-- {{ mainTitle }} -->", mainTitle);
-  html = html.replace("<!-- {{ detailTitleEng }} -->", detailTitleEng)
-  html = html.replace("<!-- {{ textEng }} -->", textEng)
-  html = html.replace("<!-- {{ textEngOp }} -->", textEngOp)
-  html = html.replace("<!-- {{ detailTitleKor }} -->", detailTitleKor)
-  html = html.replace("<!-- {{ textKor }} -->", textKor)
-  html = html.replace("<!-- {{ textKorOp }} -->", textKorOp)
-
-  console.log('html::sendmail::typecheck:: --->', typeof html);
-  // console.log('html::sendmail::typecheck:: --->', html);
+  textEng = textEng.split('\n').map(e => <p>e</p>);
+  console.log('::third::check:: ---> ', textEng);
   const msg = {
-    to: email,
     from: 'GanaProject <no-reply@ganacoin.io>',
-    subject: emailTitle,
-    text: emailTitle,
-    html
-    // personalizations: [
-    //   {
-    //     dynamic_template_data: {
-    //       subject: emailTitle,
-    //       mainTitle,
-    //       detailTitleEng,
-    //       textEng,
-    //       textEngOp,
-    //       detailTitleKor,
-    //       textKor,
-    //       textKorOp,
-    //       linkETitle, linkKTitle, linkEUrl, linkKUrl,
-    //       fSegETitle, fSegKTitle, fSegEUrl, fSegKUrl,
-    //       sSegETitle, sSegKTitle, sSegEUrl, sSegKUrl, 
-    //       // est1, esu1, est2, esu2,
-    //       // elt, elu,
-    //       // kst1, ksu1, kst2, ksu2,
-    //       // klt, klu
-    //     },
-    //   }
-    // ],
+    personalizations: [
+      {
+        to: [{ email }],
+        dynamic_template_data: {
+          subject: emailTitle,
+          mainTitle,
+          detailTitleEng,
+          textEng,
+          textEngOp,
+          detailTitleKor,
+          textKor,
+          textKorOp,
+          linkETitle, linkKTitle, linkEUrl, linkKUrl,
+          fSegETitle, fSegKTitle, fSegEUrl, fSegKUrl,
+          sSegETitle, sSegKTitle, sSegEUrl, sSegKUrl, 
+          // est1, esu1, est2, esu2,
+          // elt, elu,
+          // kst1, ksu1, kst2, ksu2,
+          // klt, klu
+        },
+      }
+    ],
+    template_id: "d-ab71c11eb2ab4c04aaaaf865b33d82ed"
   };
   // await sgMail
   //   .send(msg)
@@ -191,64 +172,5 @@ router.post('/test', async (req, res, next) => {
   //     console.log("testmail::send::error::", err)
   //   })
 })
-// router.post('/test', async (req, res, next) => { 
-//   console.log('sendmail::test::data::check:: ----- > : ', req.body);
-//   let {
-//     email,
-//     emailTitle,
-//     mainTitle,
-//     detailTitleEng,
-//     textEng,
-//     textEngOp,
-//     detailTitleKor,
-//     textKor,
-//     textKorOp,
-//     link: { 
-//       linkETitle, linkKTitle, linkEUrl, linkKUrl,
-//       fSegETitle, fSegKTitle, fSegEUrl, fSegKUrl,
-//       sSegETitle, sSegKTitle, sSegEUrl, sSegKUrl
-//     }
-//   } = req.body;
-//   console.log('::first::check:: ---> ', email, emailTitle);
-//   console.log('::second::check:: ---> ', linkETitle, linkKTitle);
-//   textEng = textEng.split('\n').map(e => <p>e</p>);
-//   console.log('::third::check:: ---> ', textEng);
-//   const msg = {
-//     from: 'GanaProject <no-reply@ganacoin.io>',
-//     personalizations: [
-//       {
-//         to: [{ email }],
-//         dynamic_template_data: {
-//           subject: emailTitle,
-//           mainTitle,
-//           detailTitleEng,
-//           textEng,
-//           textEngOp,
-//           detailTitleKor,
-//           textKor,
-//           textKorOp,
-//           linkETitle, linkKTitle, linkEUrl, linkKUrl,
-//           fSegETitle, fSegKTitle, fSegEUrl, fSegKUrl,
-//           sSegETitle, sSegKTitle, sSegEUrl, sSegKUrl, 
-//           // est1, esu1, est2, esu2,
-//           // elt, elu,
-//           // kst1, ksu1, kst2, ksu2,
-//           // klt, klu
-//         },
-//       }
-//     ],
-//     template_id: "d-ab71c11eb2ab4c04aaaaf865b33d82ed"
-//   };
-//   await sgMail
-//     .send(msg)
-//     .then(data => { 
-//       res.send("testmail sending success")
-//       console.log("testmail::send::success::")
-//     })
-//     .catch(err => {
-//       res.send("testmail sendding fail")
-//       console.log("testmail::send::error::", err)
-//     })
-// })
 
 module.exports = router;

@@ -16,8 +16,7 @@ AWS.config.update(awsConfig);
 // AWS.config.loadFromPath('../AwsConfig.json');
 // AWS.config.loadFromPath('./AwsConfig.json');
 
-// AWS.config.update({ region: 'ap-northeast-2' });
-
+const TableName = 'SubscribeTable';
 const docClient = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 
 // let DbScan = function () {
@@ -37,7 +36,7 @@ const docClient = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 
 router.get('/', async (req, res, next) => { 
   const params = {
-    TableName: 'SubscribeTable'
+    TableName
   };
   await docClient.scan(params, function (err, data) { 
     if (err) {
@@ -58,7 +57,7 @@ router.post('/add', async (req, res, next) => {
     email, type, subscribed, created_at
   };
   const params = {
-    TableName: 'SubscribeTable',
+    TableName,
     Item: input
   };
 
@@ -94,7 +93,7 @@ router.post('/delete', async (req, res, next) => {
   console.log('user::delete::check', req.body);
   const { email } = req.body;
   const params = {
-    TableName: 'SubscribeTable',
+    TableName,
     Key: {
       email
     }
@@ -115,7 +114,7 @@ router.post('/update', async (req, res, next) => {
   console.log("user::update::check", req.body);
   const { email, type, subscribed, created_at } = req.body;
   const params = {
-    TableName: 'SubscribeTable',
+    TableName,
     Key: {
       email
     },
