@@ -8,8 +8,6 @@ const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(api_key)
 const resultFile = fs.createWriteStream('emailResult.txt');
 const email_template = require('../readfile');
-// const email_template = fs.readFileSync('../template/email-template.html').toString();
-// const email_template = fs.readFileSync('email-template-main.html').toString();
 
 const mail_header = {
   to: '',
@@ -88,8 +86,9 @@ const editTemplate = data => {
   const linkE = setLink(linkEng.link);
   const linkK = setLink(linkKor.link);
 
+  // TODO: <a href="%your_replacement_tag_value%">Unsubscribe Here</a>
+  // check!
   let html = email_template;
-  html = html.replace("[Unsubscribe]", "<%asm_group_unsubscribe_raw_url%>");
   html = html.replace("[Unsubscribe]", "<%asm_group_unsubscribe_raw_url%>");
   html = html.replace("<!-- {{ mainTitle }} -->", mainTitle);
   html = html.replace("<!-- {{ detailTitleEng }} -->", detailTitleEng);
@@ -116,6 +115,11 @@ router.post('/', async (req, res, next) => {
   const params = { TableName };
   const html = editTemplate(req.body);
 
+  // const email = [];
+  // const { emailTitle } = req.body;
+  const emailArr = [];
+  const { emailTitle } = req.body;
+
   await docClient.scan(params, async (err, data) => { 
     if (err) {
       console.log("SubscribeTable::sendmail::describeTable::error - " + JSON.stringify(err, null, 2))
@@ -124,35 +128,92 @@ router.post('/', async (req, res, next) => {
       const { Items, Count, ScannedCount } = data;
       // console.log('check this :: ', Items);
 
-      const email = [];
-      Items.forEach(emails =>
-        emails.subscribed && email.push({ email: emails.email })
-      );
-      console.log('forEach::check:: ', email);
+      // const email = [];
+      // await Items.forEach(emails =>
+      //   emails.subscribed && email.push({ email: emails.email })
+      // );
+      // console.log('forEach::check:: ', email);
 
-      const { emailTitle } = req.body;
+      // const { emailTitle } = req.body;
     
-      email.forEach(async email => { 
-        console.log('forEach::check:: ', email);
-        const msg = {
-          to: email,
-          from: 'GanaProject <no-reply@ganacoin.io>',
-          subject: emailTitle,
-          text: emailTitle,
-          html
-        };
-        await sgMail
-          .send(msg)
-          .then(data => { 
-            res.send("mail sending success")
-            console.log("mail::send::success::")
-          })
-          .catch(err => {
-            res.send("mail sendding fail")
-            console.log("mail::send::error::", err)
-          })
-      })
+      //-----
+
+      // const emailArr = [];
+      // const { emailTitle } = req.body;
+      await Items.forEach(emails =>
+        emails.subscribed && emailArr.push({ email: emails.email })
+      );
+      console.log('forEach::check:: ', emailArr);
+
+
+      const msg = {
+        to: emailArr,
+        from: 'GanaProject <no-reply@ganacoin.io>',
+        subject: emailTitle,
+        text: emailTitle,
+        html,
+      };
+      await sgMail
+        .sendMultiple(msg)
+        .then(data => { 
+          res.send("mail sending success")
+          console.log("mail::send::success::")
+        })
+        .catch(err => {
+          res.send("mail sendding fail")
+          console.log("mail::send::error::", err)
+        })
+
+
+      //-----
+
+      // email.forEach(async email => { 
+      //   console.log('forEach::check:: ', email);
+      //   const msg = {
+      //     to: email,
+      //     from: 'GanaProject <no-reply@ganacoin.io>',
+      //     subject: emailTitle,
+      //     text: emailTitle,
+      //     html,
+      //     // asm: {
+      //     //   group_id: 6179
+      //     // }
+      //   };
+      //   await sgMail
+      //     .send(msg)
+      //     .then(data => { 
+      //       res.send("mail sending success")
+      //       console.log("mail::send::success::")
+      //     })
+      //     .catch(err => {
+      //       res.send("mail sendding fail")
+      //       console.log("mail::send::error::", err)
+      //     })
+      // })
     }
+    // email.forEach(async email => { 
+    //   console.log('forEach::check:: ', email);
+    //   const msg = {
+    //     to: email,
+    //     from: 'GanaProject <no-reply@ganacoin.io>',
+    //     subject: emailTitle,
+    //     text: emailTitle,
+    //     html,
+    //     // asm: {
+    //     //   group_id: 6179
+    //     // }
+    //   };
+    //   await sgMail
+    //     .send(msg)
+    //     .then(data => { 
+    //       res.send("mail sending success")
+    //       console.log("mail::send::success::")
+    //     })
+    //     .catch(err => {
+    //       res.send("mail sendding fail")
+    //       console.log("mail::send::error::", err)
+    //     })
+    // })
   })
 })
 
@@ -161,26 +222,12 @@ router.post('/test', async (req, res, next) => {
   const {
     email,
     emailTitle,
-    mainTitle,
-    detailTitleEng,
-    detailTitleKor,
-    infoMail,
-    linkEng,
-    linkKor,
   } = req.body;
 
-  let {
-    textEng,
-    textEngOp,
-    textKor,
-    textKorOp,
-  } = req.body;
-  console.log('::first::check:: ---> ', email, emailTitle);
-  console.log('::second::check::link:: ---> ', linkEng)
+  // console.log('::first::check:: ---> ', req.body);
   const html = editTemplate(req.body);
 
-  console.log('html::sendmail::typecheck:: --->', typeof html);
-  // console.log('html::sendmail::typecheck:: --->', html);
+  // console.log('html::sendmail::typecheck:: --->', typeof html);
   const msg = {
     to: email,
     from: 'GanaProject <no-reply@ganacoin.io>',
@@ -199,6 +246,11 @@ router.post('/test', async (req, res, next) => {
       res.send("testmail sendding fail")
       console.log("testmail::send::error::", err)
     })
+})
+
+router.post('/sendlater', async (req, res, next) => {
+  console.log('::sendmail::later::data::check:: ---> ', req.body);
+
 })
 
 module.exports = router;
