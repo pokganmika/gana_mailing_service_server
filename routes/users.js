@@ -1,5 +1,6 @@
 const express = require('express');
 const User = require('../models/index').User;
+const jwt = require('jsonwebtoken');
 const router = express.Router();
 
 // admin user
@@ -25,7 +26,7 @@ router.post('/login', async (req, res, next) => {
       console.log('::admin::login::data::check:: ---> : ', data.id, data.password)
       if (data.id === id && data.password === password) {
         // res.send('::admin::login::success::')
-        res.send({res: true, message: '::admin::login::success::'})
+        res.send({res: true, message: '::admin::login::success::', data: data.id})
       } else { 
         // res.send('::admin::login::not::match::')
         res.send({res: false, message: '::admin::login::not::match::'})
