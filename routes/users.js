@@ -1,6 +1,8 @@
 const express = require('express');
-const User = require('../models/index').User;
+const User = require('../models').User;
+const Log = require('../models').Log;
 const jwt = require('jsonwebtoken');
+const moment = require('moment');
 const secretKey = process.env.JWT_SECRET;
 const router = express.Router();
 
@@ -13,10 +15,24 @@ router.post('/qwer', async (req, res, next) => {
   })
     .then(data => { 
       res.send('::admin::register::success::');
+
+      Log.create({
+        operationName: 'Admin Register',
+        status: true,
+        eventInitBy: id,
+        time: moment().format('MMMM Do YYYY, h:mm:ss a')
+      })
     })
     .catch(err => { 
       console.log('::admin::register::error:: ---> : ', err);
       res.send('::admin::register::failed::');
+
+      Log.create({
+        operationName: 'Admin Register',
+        status: false,
+        eventInitBy: id,
+        time: moment().format('MMMM Do YYYY, h:mm:ss a')
+      })
     })
 });
 
@@ -33,10 +49,24 @@ router.post('/login', async (req, res, next) => {
         // res.send('::admin::login::not::match::')
         res.send({ res: false, message: '::admin::login::not::match::' })
       }
+
+      Log.create({
+        operName: 'Admin Login',
+        status: true,
+        eventInitBy: id,
+        time: moment().format('MMMM Do YYYY, h:mm:ss a')
+      })
     })
     .catch(err => {
       console.log('::admin::login::error:: ---> : ', err)
       res.send({ res: false, message: '::admin::login::failed::' })
+
+      Log.create({
+        operationName: 'Admin Login',
+        status: false,
+        eventInitBy: id,
+        time: moment().format('MMMM Do YYYY, h:mm:ss a')
+      })
     })
 });
 

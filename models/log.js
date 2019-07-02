@@ -1,11 +1,18 @@
 module.exports = (sequelize, DataTypes) => { 
   return sequelize.define('log', {
-    id: {
+    operName: {
       type: DataTypes.STRING,
-      primaryKey: true,
       allowNull: false,
     },
-    password: {
+    status: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+    eventInitBy: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    time: {
       type: DataTypes.STRING,
       allowNull: false,
     },
