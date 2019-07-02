@@ -1,6 +1,7 @@
 const express = require('express');
 const User = require('../models/index').User;
 const jwt = require('jsonwebtoken');
+const secretKey = process.env.JWT_SECRET;
 const router = express.Router();
 
 // admin user
@@ -19,23 +20,30 @@ router.post('/qwer', async (req, res, next) => {
     })
 });
 
-router.post('/login', async (req, res, next) => { 
+router.post('/login', async (req, res, next) => {
   const { id, password } = req.body;
   await User.findOne({ where: { id } })
-    .then(data => { 
+    .then(data => {
       console.log('::admin::login::data::check:: ---> : ', data.id, data.password)
       if (data.id === id && data.password === password) {
         // res.send('::admin::login::success::')
-        res.send({res: true, message: '::admin::login::success::', data: data.id})
-      } else { 
+        const token = jwt.sign({ id: data.id }, secretKey, { expiresIn: '7d' });
+        res.send({ res: true, message: '::admin::login::success::', token })
+      } else {
         // res.send('::admin::login::not::match::')
-        res.send({res: false, message: '::admin::login::not::match::'})
+        res.send({ res: false, message: '::admin::login::not::match::' })
       }
     })
-    .catch(err => { 
+    .catch(err => {
       console.log('::admin::login::error:: ---> : ', err)
-      res.send({res: false, message: '::admin::login::failed::'})
+      res.send({ res: false, message: '::admin::login::failed::' })
     })
-})
+});
+
+// router.get('/logout', (req, res) => {
+//   req.logout();
+//   req.session.destroy();
+//   res.send('logout success');
+// });
 
 module.exports = router;
