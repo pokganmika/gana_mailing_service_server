@@ -1,5 +1,7 @@
 const express = require('express');
+const Log = require('../models').Log;
 const router = express.Router();
+const moment = require('moment');
 require('dotenv').config();
 
 const AWS = require('aws-sdk');
@@ -65,9 +67,25 @@ router.post('/add', async (req, res, next) => {
     if (err) {
       console.log("user::save::error - ", JSON.stringify(err, null, 2));
       res.send(err);
+
+      Log.create({
+        operName: 'Add Subscriber',
+        status: false,
+        eventInitBy: 'admin',
+        target: email,
+        time: moment().format('MMMM Do YYYY, h:mm:ss a')
+      })
     } else {
-      console.log("user::save::success");
+      console.log("user::save::success - ");
       res.send('create_success');
+
+      Log.create({
+        operName: 'Add Subscriber',
+        status: true,
+        eventInitBy: 'admin',
+        target: email,
+        time: moment().format('MMMM Do YYYY, h:mm:ss a')
+      })
     }
   })
 
@@ -102,9 +120,25 @@ router.post('/delete', async (req, res, next) => {
     if (err) {
       console.log("user::delete::error - ", JSON.stringify(err, null, 2));
       res.send(err);
+
+      Log.create({
+        operName: 'Delete Subscriber',
+        status: false,
+        eventInitBy: 'admin',
+        target: email,
+        time: moment().format('MMMM Do YYYY, h:mm:ss a')
+      })
     } else { 
       console.log("user::delete::success");
       res.send('delete_success');
+
+      Log.create({
+        operName: 'Delete Subscriber',
+        status: true,
+        eventInitBy: 'admin',
+        target: email,
+        time: moment().format('MMMM Do YYYY, h:mm:ss a')
+      })
     }
   })
 })
@@ -113,6 +147,9 @@ router.post('/delete', async (req, res, next) => {
 router.post('/update', async (req, res, next) => { 
   console.log("user::update::check", req.body);
   const { email, type, subscribed, created_at } = req.body;
+  
+  await Log.find
+
   const params = {
     TableName,
     Key: {
@@ -132,9 +169,25 @@ router.post('/update', async (req, res, next) => {
     if (err) {
       console.log("user::modify::error - ", JSON.stringify(err, null, 2));
       res.send(err)
+
+      Log.create({
+        operName: 'Modify Subscriber',
+        status: false,
+        eventInitBy: 'admin',
+        target: email,
+        time: moment().format('MMMM Do YYYY, h:mm:ss a')
+      })
     } else {
       console.log("user::modify::success");
       res.send("update_success");
+
+      Log.create({
+        operName: 'Modify Subscriber',
+        status: true,
+        eventInitBy: 'admin',
+        target: `modify ${email} / ${subscribed}`,
+        time: moment().format('MMMM Do YYYY, h:mm:ss a')
+      })
     }
   })
 })

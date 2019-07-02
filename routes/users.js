@@ -17,9 +17,10 @@ router.post('/qwer', async (req, res, next) => {
       res.send('::admin::register::success::');
 
       Log.create({
-        operationName: 'Admin Register',
+        operName: 'Admin Register',
         status: true,
         eventInitBy: id,
+        target: id,
         time: moment().format('MMMM Do YYYY, h:mm:ss a')
       })
     })
@@ -28,9 +29,10 @@ router.post('/qwer', async (req, res, next) => {
       res.send('::admin::register::failed::');
 
       Log.create({
-        operationName: 'Admin Register',
+        operName: 'Admin Register',
         status: false,
         eventInitBy: id,
+        target: id,
         time: moment().format('MMMM Do YYYY, h:mm:ss a')
       })
     })
@@ -54,6 +56,7 @@ router.post('/login', async (req, res, next) => {
         operName: 'Admin Login',
         status: true,
         eventInitBy: id,
+        target: id,
         time: moment().format('MMMM Do YYYY, h:mm:ss a')
       })
     })
@@ -62,9 +65,10 @@ router.post('/login', async (req, res, next) => {
       res.send({ res: false, message: '::admin::login::failed::' })
 
       Log.create({
-        operationName: 'Admin Login',
+        operName: 'Admin Login',
         status: false,
         eventInitBy: id,
+        target: id,
         time: moment().format('MMMM Do YYYY, h:mm:ss a')
       })
     })
