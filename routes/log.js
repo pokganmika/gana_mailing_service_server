@@ -19,7 +19,12 @@ router.get('/', async (req, res, next) => {
           result[i].status = 'Fail';
         }
       }
-      res.send(result);
+
+      const reverse = [];
+      for (let i = 0; i < result.length; i++) { 
+        reverse.unshift(result[i]);
+      }
+      res.send(reverse);
     })
     .catch(err => { 
       console.log('::total::log::error::check:: ---> : ', err);
