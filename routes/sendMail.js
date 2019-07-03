@@ -87,11 +87,11 @@ const editTemplate = data => {
   const segK = setSeg(linkKor.segment);
   const linkE = setLink(linkEng.link);
   const linkK = setLink(linkKor.link);
-  console.log('::template::link::check:: ---> : ', typeof segE)
 
   // TODO: <a href="%your_replacement_tag_value%">Unsubscribe Here</a>
   // check!
   let html = email_template;
+  // html = html.replace("[Unsubscribe]", "http://192.168.0.114/");
   html = html.replace("[Unsubscribe]", "<%asm_group_unsubscribe_raw_url%>");
   html = html.replace("<!-- {{ mainTitle }} -->", mainTitle);
   html = html.replace("<!-- {{ detailTitleEng }} -->", detailTitleEng);
@@ -163,6 +163,9 @@ router.post('/', async (req, res, next) => {
         subject: emailTitle,
         text: emailTitle,
         html,
+        asm: {
+          group_id: 9165
+        }
       };
       await sgMail
         .sendMultiple(msg)
@@ -251,16 +254,18 @@ router.post('/test', async (req, res, next) => {
     emailTitle,
   } = req.body;
 
-  // console.log('::first::check:: ---> ', req.body);
   const html = editTemplate(req.body);
 
-  // console.log('html::sendmail::typecheck:: --->', typeof html);
   const msg = {
     to: email,
     from: 'GanaProject <no-reply@ganacoin.io>',
     subject: emailTitle,
     text: emailTitle,
-    html
+    html,
+    // asm_group_id: 9165,
+    asm: {
+      group_id: 9165
+    }
   };
 
   await sgMail
@@ -291,6 +296,7 @@ router.post('/test', async (req, res, next) => {
     })
 })
 
+// TODO: allowNull -> minute / second
 router.post('/sendlater', async (req, res, next) => {
   console.log('::sendmail::later::data::check:: ---> ', req.body);
   const { time } = req.body;
@@ -391,6 +397,9 @@ router.post('/sendlater', async (req, res, next) => {
         subject: emailTitle,
         text: emailTitle,
         html,
+        asm: {
+          group_id: 9165
+        }
       };
       await sgMail
         .sendMultiple(msg)

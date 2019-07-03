@@ -147,8 +147,6 @@ router.post('/delete', async (req, res, next) => {
 router.post('/update', async (req, res, next) => { 
   console.log("user::update::check", req.body);
   const { email, type, subscribed, created_at } = req.body;
-  
-  await Log.find
 
   const params = {
     TableName,
@@ -185,6 +183,58 @@ router.post('/update', async (req, res, next) => {
         operName: 'Modify Subscriber',
         status: true,
         eventInitBy: 'admin',
+        target: `modify ${email} / ${subscribed}`,
+        time: moment().format('MMMM Do YYYY, h:mm:ss a')
+      })
+    }
+  })
+})
+
+// -----
+
+//TODO: unsubscribe
+router.get('/unsubscribe/:email', async (req, res, next) => { 
+  // console.log("::user::update::check::", req.body);
+  // const { email, type, subscribed, created_at } = req.body;
+  console.log("::user::unsubscribe::parmas::check:: ---> : ", req.params);
+  const { email } = req.params;
+
+  const params = {
+    TableName,
+    Key: {
+      email
+    },
+    UpdateExpression: "set subscribed = :boolValue",
+    // UpdateExpression: "set subscribed = :boolValue, email = :emailStrValue, type = :typeValue, created_at = :timeStrValue",
+    ExpressionAttributeValues: {
+      // ":boolValue": subscribed,
+      ":boolValue": false,
+      // ":emailStrValue": email,
+      // ":typeValue": type,
+      // ":timeStrValue": created_at
+    },
+    ReturnValues: "UPDATED_NEW"
+  }
+  await docClient.update(params, (err, data) => {
+    if (err) {
+      console.log("user::modify::error - ", JSON.stringify(err, null, 2));
+      res.send(err)
+
+      Log.create({
+        operName: 'Unsubscribe Request',
+        status: false,
+        eventInitBy: 'user',
+        target: email,
+        time: moment().format('MMMM Do YYYY, h:mm:ss a')
+      })
+    } else {
+      console.log("user::modify::success");
+      res.send("update_success");
+
+      Log.create({
+        operName: 'Unsubscribe Request',
+        status: true,
+        eventInitBy: 'user',
         target: `modify ${email} / ${subscribed}`,
         time: moment().format('MMMM Do YYYY, h:mm:ss a')
       })

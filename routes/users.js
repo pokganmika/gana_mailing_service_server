@@ -52,25 +52,25 @@ router.post('/login', async (req, res, next) => {
         res.send({ res: false, message: '::admin::login::not::match::' })
       }
 
-      Log.create({
-        operName: 'Admin Login',
-        status: true,
-        eventInitBy: id,
-        target: id,
-        time: moment().format('MMMM Do YYYY, h:mm:ss a')
-      })
+      // Log.create({
+      //   operName: 'Admin Login',
+      //   status: true,
+      //   eventInitBy: id,
+      //   target: id,
+      //   time: moment().format('MMMM Do YYYY, h:mm:ss a')
+      // })
     })
     .catch(err => {
       console.log('::admin::login::error:: ---> : ', err)
       res.send({ res: false, message: '::admin::login::failed::' })
 
-      Log.create({
-        operName: 'Admin Login',
-        status: false,
-        eventInitBy: id,
-        target: id,
-        time: moment().format('MMMM Do YYYY, h:mm:ss a')
-      })
+      // Log.create({
+      //   operName: 'Admin Login',
+      //   status: false,
+      //   eventInitBy: id,
+      //   target: id,
+      //   time: moment().format('MMMM Do YYYY, h:mm:ss a')
+      // })
     })
 });
 
