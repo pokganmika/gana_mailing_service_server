@@ -17,6 +17,7 @@ router.post('/qwer', async (req, res, next) => {
       res.send('::admin::register::success::');
 
       Log.create({
+        category: 'ADMIN',
         operName: 'Admin Register',
         status: true,
         eventInitBy: id,
@@ -29,6 +30,7 @@ router.post('/qwer', async (req, res, next) => {
       res.send('::admin::register::failed::');
 
       Log.create({
+        category: 'ADMIN',
         operName: 'Admin Register',
         status: false,
         eventInitBy: id,

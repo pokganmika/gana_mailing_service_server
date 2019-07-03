@@ -1,5 +1,9 @@
 module.exports = (sequelize, DataTypes) => { 
   return sequelize.define('log', {
+    category: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     operName: {
       type: DataTypes.STRING,
       allowNull: false,

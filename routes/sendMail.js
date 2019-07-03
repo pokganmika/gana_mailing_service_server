@@ -174,6 +174,7 @@ router.post('/', async (req, res, next) => {
           res.send("mail sending success")
 
           Log.create({
+            category: 'EMAIL',
             operName: 'Send Mail (ALL)',
             status: true,
             eventInitBy: 'admin',
@@ -186,6 +187,7 @@ router.post('/', async (req, res, next) => {
           res.send("mail sendding fail")
 
           Log.create({
+            category: 'EMAIL',
             operName: 'Send Mail (ALL)',
             status: false,
             eventInitBy: 'admin',
@@ -275,6 +277,7 @@ router.post('/test', async (req, res, next) => {
       res.send("testmail sending success")
 
       Log.create({
+        category: 'EMAIL',
         operName: 'Test Mail Send',
         status: true,
         eventInitBy: 'admin',
@@ -287,6 +290,7 @@ router.post('/test', async (req, res, next) => {
       res.send("testmail sendding fail")
 
       Log.create({
+        category: 'EMAIL',
         operName: 'Test Mail Send',
         status: false,
         eventInitBy: 'admin',
@@ -408,6 +412,7 @@ router.post('/sendlater', async (req, res, next) => {
           res.send("mail sending success")
 
           Log.create({
+            category: 'EMAIL',
             operName: 'Send Later',
             status: true,
             eventInitBy: 'admin',
@@ -420,6 +425,7 @@ router.post('/sendlater', async (req, res, next) => {
           res.send("mail sendding fail")
 
           Log.create({
+            category: 'EMAIL',
             operName: 'Send Later',
             status: false,
             eventInitBy: 'admin',

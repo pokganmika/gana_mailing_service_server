@@ -69,6 +69,7 @@ router.post('/add', async (req, res, next) => {
       res.send(err);
 
       Log.create({
+        category: 'SUBSCRIBER',
         operName: 'Add Subscriber',
         status: false,
         eventInitBy: 'admin',
@@ -80,6 +81,7 @@ router.post('/add', async (req, res, next) => {
       res.send('create_success');
 
       Log.create({
+        category: 'SUBSCRIBER',
         operName: 'Add Subscriber',
         status: true,
         eventInitBy: 'admin',
@@ -122,6 +124,7 @@ router.post('/delete', async (req, res, next) => {
       res.send(err);
 
       Log.create({
+        category: 'SUBSCRIBER',
         operName: 'Delete Subscriber',
         status: false,
         eventInitBy: 'admin',
@@ -133,6 +136,7 @@ router.post('/delete', async (req, res, next) => {
       res.send('delete_success');
 
       Log.create({
+        category: 'SUBSCRIBER',
         operName: 'Delete Subscriber',
         status: true,
         eventInitBy: 'admin',
@@ -169,6 +173,7 @@ router.post('/update', async (req, res, next) => {
       res.send(err)
 
       Log.create({
+        category: 'SUBSCRIBER',
         operName: 'Modify Subscriber',
         status: false,
         eventInitBy: 'admin',
@@ -180,6 +185,7 @@ router.post('/update', async (req, res, next) => {
       res.send("update_success");
 
       Log.create({
+        category: 'SUBSCRIBER',
         operName: 'Modify Subscriber',
         status: true,
         eventInitBy: 'admin',
@@ -221,6 +227,7 @@ router.get('/unsubscribe/:email', async (req, res, next) => {
       res.send(err)
 
       Log.create({
+        category: 'SUBSCRIBER',
         operName: 'Unsubscribe Request',
         status: false,
         eventInitBy: 'user',
@@ -232,6 +239,7 @@ router.get('/unsubscribe/:email', async (req, res, next) => {
       res.send("update_success");
 
       Log.create({
+        category: 'SUBSCRIBER',
         operName: 'Unsubscribe Request',
         status: true,
         eventInitBy: 'user',
