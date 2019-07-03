@@ -306,8 +306,8 @@ router.post('/sendlater', async (req, res, next) => {
   const { time } = req.body;
 
   const strHour = time.hour.length === 1 ? '0' + time.hour : time.hour;
-  const strMinute = time.minute.length === 1 ? '0' + time.minute : time.minute;
-  const strSecond = time.second.length === 1 ? '0' + time.second : time.second;
+  const strMinute = !time.minute ? '00' : time.minute.length === 1 ? '0' + time.minute : time.minute;
+  const strSecond = !time.second ? '00' : time.second.length === 1 ? '0' + time.second : time.second;
 
   const year = Number(time.year);
   const day = Number(time.day);
@@ -416,7 +416,7 @@ router.post('/sendlater', async (req, res, next) => {
             operName: 'Send Later',
             status: true,
             eventInitBy: 'admin',
-            target: 'send all',
+            target: `send all - RT: ${strTime}`,
             time: moment().format('MMMM Do YYYY, h:mm:ss a')
           })
         })
@@ -429,7 +429,7 @@ router.post('/sendlater', async (req, res, next) => {
             operName: 'Send Later',
             status: false,
             eventInitBy: 'admin',
-            target: 'send all',
+            target: `send all - RT: ${strTime}`,
             time: moment().format('MMMM Do YYYY, h:mm:ss a')
           })
         })
