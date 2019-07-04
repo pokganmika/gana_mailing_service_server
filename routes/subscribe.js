@@ -9,16 +9,16 @@ const awsConfig = {
   region: process.env.REGION,
   accessKeyId: process.env.ACCESS_KEY_ID,
   secretAccessKey: process.env.SECRET_ACCESS_KEY
-  // region: "ap-northeast-2",
-  // accessKeyId: "AKIAJE7AXS4OATS2VSZA",
-  // secretAccessKey: "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"
 }
 AWS.config.update(awsConfig);
 
 // AWS.config.loadFromPath('../AwsConfig.json');
 // AWS.config.loadFromPath('./AwsConfig.json');
 
-const TableName = 'SubscribeTable';
+// AWS => exia
+// const TableName = 'SubscribeTable';
+// AWS => gana
+const TableName = 'SubscribeTableV2';
 const docClient = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 
 // let DbScan = function () {
