@@ -7,7 +7,7 @@ require('dotenv').config();
 
 const api_key = process.env.SENDGRID_API_KEY;
 const sgMail = require('@sendgrid/mail');
-sgMail.setApiKey(api_key)
+sgMail.setApiKey(api_key);
 const resultFile = fs.createWriteStream('emailResult.txt');
 const email_template = require('../readfile');
 
