@@ -10,7 +10,7 @@ const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(api_key);
 const resultFile = fs.createWriteStream('emailResult.txt');
 const email_template = require('../readfile');
-
+console.log('::sgMail::check:: -----> : ',sgMail)
 const mail_header = {
   to: '',
   from: 'GanaProject <no-reply@ganacoin.io>',//수정할부분
