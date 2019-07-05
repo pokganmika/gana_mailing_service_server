@@ -18,7 +18,7 @@ AWS.config.update(awsConfig);
 // AWS => exia
 // const TableName = 'SubscribeTable';
 // AWS => gana
-const TableName = 'SubscribeTableV2';
+const TableName = process.env.TABLE_NAME;
 const docClient = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 
 // let DbScan = function () {
@@ -36,6 +36,49 @@ const docClient = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 //   })
 // }
 
+// TODO: update count
+router.get('/main', async (req, res, next) => { 
+  const params = {
+    TableName
+  };
+  await docClient.scan(params, function (err, data) { 
+    if (err) {
+      console.log("SubscribeTable::describeTable::error - " + JSON.stringify(err, null, 2));
+      res.send(err);
+    } else { 
+      console.log("SubscribeTable::describeTable::success - " + JSON.stringify(data, null, 2));
+      let unSubsCount = 0;
+      let subsCount = 0;
+
+      data.Items.forEach(element => { 
+        // console.log('element check : ', element);
+        // if (element.subscribed !== 1) {
+        if (element.subscribed !== true) {
+          unSubsCount = unSubsCount + 1;
+        } else if (element.subscribed === true) { 
+          subsCount = subsCount + 1;
+        }
+      })
+
+      const result = {
+        count: data.Count,
+        scannedCount: data.ScannedCount,
+        unSubsCount,
+        subsCount
+      };
+      
+      // for (let i = 0; i < data.Items.length; i++) { 
+      //   if (data.Items[i].subscribed === false) { 
+      //     unSubsCount = unSubsCount + 1;
+      //   } 
+      // }
+      res.send(result);
+      // res.send(data);
+      // res.send(JSON.stringify(data));
+    }
+  })
+})
+
 router.get('/', async (req, res, next) => { 
   const params = {
     TableName
@@ -46,12 +89,19 @@ router.get('/', async (req, res, next) => {
       res.send(err);
     } else { 
       console.log("SubscribeTable::describeTable::success - " + JSON.stringify(data, null, 2));
-      res.send(data);
+      const result = [];
+      for (let i = 0; i < data.Items.length; i++) { 
+        data.Items[i].created_at = new Date(data.Items[i].created_at).toString().slice(0, 24);
+        result.push(data.Items[i]);
+      }
+      res.send(result);
+      // res.send(data);
       // res.send(JSON.stringify(data));
     }
   })
 })
 
+// TODO: created_at / subscribed => modify!
 router.post('/add', async (req, res, next) => { 
   console.log("user::save::check", req.body);
   const { email, type, subscribed, created_at } = req.body;
@@ -147,6 +197,7 @@ router.post('/delete', async (req, res, next) => {
   })
 })
 
+// TODO: created_at / subscribed => modify!
 //TODO: value problem (maybe returnvalue)
 router.post('/update', async (req, res, next) => { 
   console.log("user::update::check", req.body);

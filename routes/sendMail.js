@@ -10,7 +10,7 @@ const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(api_key);
 const resultFile = fs.createWriteStream('emailResult.txt');
 const email_template = require('../readfile');
-console.log('::sgMail::check:: -----> : ',sgMail)
+
 const mail_header = {
   to: '',
   from: 'GanaProject <no-reply@ganacoin.io>',//수정할부분
@@ -30,7 +30,7 @@ const awsConfig = {
 }
 AWS.config.update(awsConfig);
 
-const TableName = "SubscribeTable";
+const TableName = process.env.TABLE_NAME;
 const docClient = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 
 // template module
@@ -88,10 +88,7 @@ const editTemplate = data => {
   const linkE = setLink(linkEng.link);
   const linkK = setLink(linkKor.link);
 
-  // TODO: <a href="%your_replacement_tag_value%">Unsubscribe Here</a>
-  // check!
   let html = email_template;
-  // html = html.replace("[Unsubscribe]", "http://192.168.0.114/");
   html = html.replace("[Unsubscribe]", "<%asm_group_unsubscribe_raw_url%>");
   html = html.replace("<!-- {{ mainTitle }} -->", mainTitle);
   html = html.replace("<!-- {{ detailTitleEng }} -->", detailTitleEng);
@@ -264,7 +261,6 @@ router.post('/test', async (req, res, next) => {
     subject: emailTitle,
     text: emailTitle,
     html,
-    // asm_group_id: 9165,
     asm: {
       group_id: 9165
     }
