@@ -25,8 +25,6 @@ router.get('/main/weekly', async (req, res, next) => {
 
   await sgClient.request(request)
     .then(([response, body]) => {
-      // console.log('::check::this:: ---> : ', response.statusCode);
-      // console.log('::check::this:: ---> : ', body);
       res.status(response.statusCode).send(body)
     })
     .catch(err => {
@@ -48,8 +46,6 @@ router.get('/main/monthly', async (req, res, next) => {
 
   await sgClient.request(request)
     .then(([response, body]) => {
-      // console.log('::check::this:: ---> : ', response.statusCode);
-      // console.log('::check::this:: ---> : ', body);
       res.status(response.statusCode).send(body)
     })
     .catch(err => {

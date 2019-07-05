@@ -15,9 +15,6 @@ AWS.config.update(awsConfig);
 // AWS.config.loadFromPath('../AwsConfig.json');
 // AWS.config.loadFromPath('./AwsConfig.json');
 
-// AWS => exia
-// const TableName = 'SubscribeTable';
-// AWS => gana
 const TableName = process.env.TABLE_NAME;
 const docClient = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 
@@ -50,12 +47,14 @@ router.get('/main', async (req, res, next) => {
       let unSubsCount = 0;
       let subsCount = 0;
 
+      // TODO: DB issue
       data.Items.forEach(element => { 
         // console.log('element check : ', element);
-        // if (element.subscribed !== 1) {
-        if (element.subscribed !== true) {
+        if (element.subscribed !== 1) {
+        // if (element.subscribed !== true) {
           unSubsCount = unSubsCount + 1;
-        } else if (element.subscribed === true) { 
+        } else if (element.subscribed === 1) { 
+        // } else if (element.subscribed === true) { 
           subsCount = subsCount + 1;
         }
       })
@@ -66,12 +65,6 @@ router.get('/main', async (req, res, next) => {
         unSubsCount,
         subsCount
       };
-      
-      // for (let i = 0; i < data.Items.length; i++) { 
-      //   if (data.Items[i].subscribed === false) { 
-      //     unSubsCount = unSubsCount + 1;
-      //   } 
-      // }
       res.send(result);
       // res.send(data);
       // res.send(JSON.stringify(data));
@@ -140,23 +133,6 @@ router.post('/add', async (req, res, next) => {
       })
     }
   })
-
-  //-----
-
-  // if (Object.keys(input).length === 4) {
-  //   await docClient.put(params, (err, data) => {
-  //     if (err) {
-  //       console.log("user::save::error - ", JSON.stringify(err, null, 2));
-  //       res.send(err);
-  //     } else {
-  //       console.log("user::save::success");
-  //       res.send('create_success');
-  //     }
-  //   })
-  // } else { 
-  //   console.log("user::save::error - Not Enough Data")
-  //   res.send('Not enough Data')
-  // }
 })
 
 router.post('/delete', async (req, res, next) => { 
