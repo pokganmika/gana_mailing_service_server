@@ -303,8 +303,8 @@ router.post('/sendlater', async (req, res, next) => {
   const strTime = `${time.month} ${time.day} ${time.year}, ${strHour}:${strMinute}:${strSecond}`;
   const unixTime = Math.floor(new Date(year, month, day, hour, minute, second).getTime()/1000);
 
-  console.log('::unixTime::check:: ---> : ', unixTime);
-  console.log('::strTime::check:: ---> : ', strTime);
+  // console.log('::unixTime::check:: ---> : ', unixTime);
+  // console.log('::strTime::check:: ---> : ', strTime);
 
   const params = { TableName };
   const html = editTemplate(req.body);

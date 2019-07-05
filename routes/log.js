@@ -32,6 +32,8 @@ router.get('/', async (req, res, next) => {
     });
 })
 
+//-----
+
 router.get('/email', async (req, res, next) => { 
   await Log.findAll({ where: { category: 'EMAIL' } })
     .then(data => {

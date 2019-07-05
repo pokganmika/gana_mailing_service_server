@@ -108,7 +108,7 @@ router.post('/add', async (req, res, next) => {
 
   await docClient.put(params, (err, data) => {
     if (err) {
-      console.log("user::save::error - ", JSON.stringify(err, null, 2));
+      console.log("user::save::error ---> : ", JSON.stringify(err, null, 2));
       res.send(err);
 
       Log.create({
@@ -120,7 +120,7 @@ router.post('/add', async (req, res, next) => {
         time: moment().format('MMMM Do YYYY, h:mm:ss a')
       })
     } else {
-      console.log("user::save::success - ");
+      console.log("user::save::success");
       res.send('create_success');
 
       Log.create({
@@ -184,10 +184,12 @@ router.post('/update', async (req, res, next) => {
     Key: {
       email
     },
-    UpdateExpression: "set subscribed = :boolValue",
+    UpdateExpression: "set subscribed = :numValue",
+    // UpdateExpression: "set subscribed = :boolValue",
     // UpdateExpression: "set subscribed = :boolValue, email = :emailStrValue, type = :typeValue, created_at = :timeStrValue",
     ExpressionAttributeValues: {
-      ":boolValue": subscribed,
+      ":numValue": subscribed,
+      // ":boolValue": subscribed,
       // ":emailStrValue": email,
       // ":typeValue": type,
       // ":timeStrValue": created_at
