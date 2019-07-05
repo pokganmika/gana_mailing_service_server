@@ -6,6 +6,7 @@ const moment = require('moment');
 require('dotenv').config();
 
 const api_key = process.env.SENDGRID_API_KEY;
+const group_id = process.env.SENDGRID_GROUP_ID;
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(api_key);
 const resultFile = fs.createWriteStream('emailResult.txt');
@@ -161,7 +162,7 @@ router.post('/', async (req, res, next) => {
         text: emailTitle,
         html,
         asm: {
-          group_id: 9165
+          group_id
         }
       };
       await sgMail
@@ -262,7 +263,7 @@ router.post('/test', async (req, res, next) => {
     text: emailTitle,
     html,
     asm: {
-      group_id: 9165
+      group_id
     }
   };
 
@@ -398,7 +399,7 @@ router.post('/sendlater', async (req, res, next) => {
         text: emailTitle,
         html,
         asm: {
-          group_id: 9165
+          group_id
         }
       };
       await sgMail
