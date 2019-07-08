@@ -6,7 +6,7 @@ const moment = require('moment');
 require('dotenv').config();
 
 const api_key = process.env.SENDGRID_API_KEY;
-const group_id = process.env.SENDGRID_GROUP_ID;
+const group_id = Number(process.env.SENDGRID_GROUP_ID);
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(api_key);
 const resultFile = fs.createWriteStream('emailResult.txt');
