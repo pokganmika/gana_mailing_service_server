@@ -9,22 +9,31 @@ router.get('/', async (req, res, next) => {
       // TODO: can't see the data
       // console.log('::total::log::success::check:: ---> : ', data);
       console.log('::total::log::success::check:: ---> : ', JSON.stringify(data, null, 2));
-      const result = JSON.parse(JSON.stringify(data, null, 2));
-      console.log('::result::check::before:: ---> : ', result);
-      for (let i = 0; i < result.length; i++) { 
-        result[i].key = result[i].key.toString();
-        if (result[i].status === true) {
-          result[i].status = 'Success';
+      const tempData = JSON.parse(JSON.stringify(data, null, 2));
+      const result = [];
+      console.log('::tempData::check::before:: ---> : ', tempData);
+      for (let i = 0; i < tempData.length; i++) { 
+        tempData[i].key = tempData[i].key.toString();
+        if (tempData[i].status === true) {
+          tempData[i].status = 'Success';
+        } else if (tempData[i].status === false) {
+          tempData[i].status = 'Fail';
         } else { 
-          result[i].status = 'Fail';
+          tempData[i].status = 'Error';
         }
-      }
+        
+        // if (tempData[i].operName === 'Modify Subscriber' && tempData[i].target[tempData[i].target.length - 1] === ('1' || '0')) { 
+        if (tempData[i].operName === 'Modify Subscriber') { 
+          if (tempData[i].target[tempData[i].target.length - 1] === '1') {
+            tempData[i].target = tempData[i].target.slice(0, tempData[i].target.length - 1) + true;
+          } else if (tempData[i].target[tempData[i].target.length - 1] === '0'){ 
+            tempData[i].target = tempData[i].target.slice(0, tempData[i].target.length - 1) + false;
+          }
+        }
 
-      const reverse = [];
-      for (let i = 0; i < result.length; i++) { 
-        reverse.unshift(result[i]);
+        result.unshift(tempData[i]);
       }
-      res.send(reverse);
+      res.send(result);
     })
     .catch(err => { 
       console.log('::total::log::error::check:: ---> : ', err);
