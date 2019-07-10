@@ -11,9 +11,10 @@ router.get('/', async (req, res, next) => {
       console.log('::total::log::success::check:: ---> : ', JSON.stringify(data, null, 2));
       const tempData = JSON.parse(JSON.stringify(data, null, 2));
       const result = [];
-      console.log('::tempData::check::before:: ---> : ', tempData);
+      
       for (let i = 0; i < tempData.length; i++) { 
         tempData[i].key = tempData[i].key.toString();
+
         if (tempData[i].status === true) {
           tempData[i].status = 'Success';
         } else if (tempData[i].status === false) {
@@ -21,7 +22,7 @@ router.get('/', async (req, res, next) => {
         } else { 
           tempData[i].status = 'Error';
         }
-        
+
         // if (tempData[i].operName === 'Modify Subscriber' && tempData[i].target[tempData[i].target.length - 1] === ('1' || '0')) { 
         if (tempData[i].operName === 'Modify Subscriber') { 
           if (tempData[i].target[tempData[i].target.length - 1] === '1') {

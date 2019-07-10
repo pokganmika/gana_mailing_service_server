@@ -1,22 +1,27 @@
 const fs = require('fs');
 const express = require('express');
 const Log = require('../models').Log;
+const Later = require('../models').Later;
 const router = express.Router();
 const moment = require('moment');
 require('dotenv').config();
 
 const api_key = process.env.SENDGRID_API_KEY;
 const group_id = Number(process.env.SENDGRID_GROUP_ID);
+
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(api_key);
+const sgClient = require('@sendgrid/client');
+sgClient.setApiKey(api_key);
+
 const resultFile = fs.createWriteStream('emailResult.txt');
 const email_template = require('../readfile');
 
 const mail_header = {
   to: '',
-  from: 'GanaProject <no-reply@ganacoin.io>',//수정할부분
-  subject: '"835M" GANA Token Burn (GANA의 토큰 소각이 진행됩니다.)',//수정할부분
-  text: '"835M" GANA Token Burn (GANA의 토큰 소각이 진행됩니다.)',//수정할부분
+  from: 'GanaProject <no-reply@ganacoin.io>',
+  subject: '"835M" GANA Token Burn (GANA의 토큰 소각이 진행됩니다.)',
+  text: '"835M" GANA Token Burn (GANA의 토큰 소각이 진행됩니다.)',
   html: email_template.replace("[Unsubscribe]", "<%asm_group_unsubscribe_raw_url%>"),
   asm: {
       group_id: 6179
@@ -120,6 +125,9 @@ const editTemplate = data => {
   return html;
 }
 
+/**
+ * TODO: maxItems: 1000
+ */
 router.post('/', async (req, res, next) => {
   const params = { TableName };
   const html = editTemplate(req.body);
@@ -230,7 +238,13 @@ router.post('/test', async (req, res, next) => {
     })
 })
 
-// TODO: allowNull -> minute / second
+/**
+ * TODO: allowNull -> minute / second
+ * TODO: need batch_id
+ * TODO: maxItems: 1000
+ * 
+ * Scheduling more than 72 hours in advance is forbidden.
+ */
 router.post('/sendlater', async (req, res, next) => {
   console.log('::sendmail::later::data::check:: ---> ', req.body);
   const { time } = req.body;
@@ -302,6 +316,7 @@ router.post('/sendlater', async (req, res, next) => {
 
   const strTime = `${time.month} ${time.day} ${time.year}, ${strHour}:${strMinute}:${strSecond}`;
   const unixTime = Math.floor(new Date(year, month, day, hour, minute, second).getTime()/1000);
+  // const unixTime = new Date(year, month, day, hour, minute, second).getTime();
 
   // console.log('::unixTime::check:: ---> : ', unixTime);
   // console.log('::strTime::check:: ---> : ', strTime);
@@ -311,6 +326,25 @@ router.post('/sendlater', async (req, res, next) => {
 
   const emailArr = [];
   const { emailTitle } = req.body;
+
+  //-----
+  let batch_id;
+  const request = {
+    method: 'POST',
+    url: '/v3/mail/batch'
+  };
+
+  await sgClient
+    .request(request)
+    .then(([response, body]) => {
+      batch_id = body.batch_id;
+      console.log('::batch_id::check:: ---> : ', batch_id);
+    })
+    .catch(err => {
+      console.log(err)
+      res.send('::batch_id::error::');
+    })
+  //-----
 
   await docClient.scan(params, async (err, data) => { 
     if (err) {
@@ -325,21 +359,30 @@ router.post('/sendlater', async (req, res, next) => {
       console.log('forEach::check:: ', emailArr);
 
       const msg = {
-        to: emailArr,
+        to: emailArr, // maxItems : 1000 
         from: 'GanaProject <no-reply@ganacoin.io>',
         send_at: unixTime,
         subject: emailTitle,
         text: emailTitle,
         html,
+        batch_id,
         asm: {
           group_id
         }
       };
+
       await sgMail
         .sendMultiple(msg)
         .then(data => { 
           console.log("mail::send::success::")
           res.send("mail sending success")
+
+          Later.create({
+            emailTitle,
+            batchId: batch_id,
+            status: 'Pending',
+            scheduledTime: strTime
+          })
 
           Log.create({
             category: 'EMAIL',
@@ -366,5 +409,62 @@ router.post('/sendlater', async (req, res, next) => {
     }
   })
 })
+
+// TODO: test router
+
+router.post('/sendlatertest', async (req, res, next) => { 
+  let batch_id;
+  const request = {
+    method: 'POST',
+    url: '/v3/mail/batch'
+  }
+  await sgClient.request(request)
+    .then(([response, body]) => {
+      console.log('::generate::batch::id::success:: ---> : ', body);
+      // console.log('::generate::batch::id::success::');
+      batch_id = body.batch_id;
+      res.send(body)
+    })
+    .catch (err => { 
+      console.log('::generate::batch::id::fail:: ---> : ', err);
+    res.send(err);
+    })
+})
+
+router.get('/sendlatertest', async (req, res, next) => { 
+  const batch_id = `MWQ4YzQyM2MtYTIxZC0xMWU5LTg0NjgtNTI1NDAwYWZiMGU3LTkxNzI1YWU1ZQ`;
+  const request = {
+    method: 'GET',
+    url: `/v3/mail/batch/${batch_id}`
+  }
+  await sgClient.request(request)
+    .then(([response, body]) => { 
+      res.send(body);
+    })
+    .catch(err => { 
+      res.send(err);
+    })
+})
+
+router.get('/sendlatertest2', async (req, res, next) => { 
+  const batch_id = `ZDY0ZTBiNTgtYTIwMy0xMWU5LWFlODQtNTI1NDAwNjhkZjVmLThhMjM3N2NlMA`;
+  const request = {
+    qs: {
+      batch_id,
+      status: "pause"
+    },
+    method: 'GET',
+    url: '/v3/user/schedule_send'
+  }
+  await sgClient.request(request)
+    .then(([response, body]) => { 
+      res.send(body);
+    })
+    .catch(err => { 
+      res.send(err);
+    })
+})
+
+
 
 module.exports = router;
