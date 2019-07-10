@@ -316,7 +316,7 @@ router.post('/sendlater', async (req, res, next) => {
 
   const strTime = `${time.month} ${time.day} ${time.year}, ${strHour}:${strMinute}:${strSecond}`;
   const unixTime = Math.floor(new Date(year, month, day, hour, minute, second).getTime()/1000);
-  // const unixTime = new Date(year, month, day, hour, minute, second).getTime();
+  // const rUnixTime = new Date(year, month, day, hour, minute, second).getTime();
 
   // console.log('::unixTime::check:: ---> : ', unixTime);
   // console.log('::strTime::check:: ---> : ', strTime);
@@ -381,7 +381,8 @@ router.post('/sendlater', async (req, res, next) => {
             emailTitle,
             batchId: batch_id,
             status: 'Pending',
-            scheduledTime: strTime
+            scheduledTime: unixTime * 1000,
+            time: moment().format('MMMM Do YYYY, h:mm:ss a')
           })
 
           Log.create({
@@ -464,7 +465,5 @@ router.get('/sendlatertest2', async (req, res, next) => {
       res.send(err);
     })
 })
-
-
 
 module.exports = router;
