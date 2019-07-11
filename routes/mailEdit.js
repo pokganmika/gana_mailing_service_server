@@ -14,27 +14,32 @@ router.get('/', async (req, res, next) => {
   const oldData = [];
   const result = [];
 
-  await Later.findAll()
-    .then(data => {
-      data.forEach(element => {
-        if (nowUnixTime > Number(element.scheduledTime)) {
-          oldData.push(element)
-        }
-        result.push(element)
-      })
-      console.log('::email::edit::list::success::check:: ---> : ', JSON.stringify(data, null, 2));
-      res.send(result);
-    })
-    .catch(err => {
-      console.log('::email::edit::list::fail::check:: ---> : ', err)
-      res.send(err);
+  try {
+    const laterData = await Later.findAll();
+    laterData.forEach(element => { 
+      if (nowUnixTime > Number(element.scheduledTime)) { 
+        oldData.push(element);
+      }
+      result.push(element)
     })
 
-  await oldData.forEach(element => {
-    Later.destroy({ where: { id: element.id } })
-      .then(result => console.log('::olddata::delete::success:: ---> : ', result))
-      .catch(err => console.log('::olddata::delete::fail:: ---> : ', err))
-  })
+    console.log('::email::edit::list::success::check:: ---> : ', JSON.stringify(laterData, null, 2));
+    res.send(result);
+
+  } catch (err) { 
+    console.log('::email::edit::list::fail::check:: ---> : ', err)
+    res.send(err);
+  }
+
+  try {
+    oldData.forEach(element => { 
+      const result = Later.destroy({ where: { id: element.id } });
+      console.log('::olddata::delete::success:: ---> : ', result);
+    })
+
+  } catch (err) { 
+    console.log('::olddata::delete::fail:: ---> : ', err)
+  }
 });
 
 router.post('/pause', async (req, res, next) => { 
@@ -48,28 +53,24 @@ router.post('/pause', async (req, res, next) => {
     url: '/v3/user/scheduled_sends'
   };
 
-  await sgClient.request(request)
-    .then(async ([response, body]) => {
-      console.log(body);
-      res.send('::later::mail::edit::success::pause::');
+  try {
+    const [response, body] = await sgClient.request(request);
+    console.log('::later::mail::edit::response::check:: ---> : ', body);
 
-      await Later.update({ status: 'Pause' }, { where: { id } })
-        .then(result => console.log(result))
-        .catch(err => console.log(err))
-      
-      await Log.create({
-        categody: 'SCHEDULED',
-        operName: 'Send Later - Pause',
-        status: true,
-        eventInitBy: 'admin',
-        target: ``,
-        time: moment().format('MMMM Do YYYY, h:mm:ss a')
-      })
+    await Later.update({ status: 'Pause' }, { where: { id } })
+    await Log.create({
+      category: 'SCHEDULED',
+      operName: 'Send Later - Pause',
+      status: true,
+      eventInitBy: 'admin',
+      target: `Pause -> ${batch_id}`,
+      time: moment().format('MMMM Do YYYY, h:mm:ss a')
     })
-    .catch(err => {
-      console.log(err);
-      res.send('::later::mail::edit::fail::pause::');
-    })
+
+  } catch (err) { 
+    console.log(err);
+    res.send('::later::mail::edit::fail::pause::');
+  }
 })
 
 router.post('/cancel', async (req, res, next) => { 
@@ -83,18 +84,25 @@ router.post('/cancel', async (req, res, next) => {
     url: '/v3/user/scheduled_sends'
   };
 
-  await sgClient.request(request)
-    .then(async ([response, body]) => {
-      console.log(body);
-      res.send('::later::mail::edit::success::cancel::')
-      await Later.update({ status: 'Cancel' }, { where: { id } })
-        .then(result => console.log(result))
-        .catch(err => console.log(err))
+  try {
+    const [response, body] = await sgClient.request(request);
+    console.log(body);
+    res.send('::later::mail::edit::success::cancel::');
+
+    await Later.update({ status: 'Cancel' }, { where: { id } })
+    await Log.create({
+      category: 'SCHEDULED',
+      operName: 'Send Later - Cancel',
+      status: true,
+      eventInitBy: 'admin',
+      target: `Cancel -> ${batch_id}`,
+      time: moment().format('MMMM Do YYYY, h:mm:ss a')
     })
-    .catch(err => {
-      console.log(err);
-      res.send('::later::mail::edit::fail::cancel::');
-    })
+    
+  } catch (err) { 
+    console.log(err);
+    res.send('::later::mail::edit::fail::cancel::');
+  }
 })
 
 router.post('/delete', async (req, res, next) => { 
@@ -104,24 +112,25 @@ router.post('/delete', async (req, res, next) => {
     url: `/v3/user/scheduled_sends/${batch_id}`
   };
 
-  await sgClient.request(request)
-    .then(async ([response, body]) => { 
-      console.log(body);
-      res.send('::later::mail::edit::success::delete::');
-      await Later.update({ status: 'Pending' }, { where: { id } })
-        .then(result => { 
-          console.log();
-          res.send();
-        })
-        .catch(err => { 
-          console.log();
-          res.send();
-        })
+  try {
+    const [response, body] = await sgClient.request(request);
+    console.log(body);
+    res.send('::later::mail::edit::success::delete::');
+
+    await Later.update({ status: 'Pending' }, { where: { id } })
+    await Log.create({
+      category: 'SCHEDULED',
+      operName: 'Send Later - Repend',
+      status: true,
+      eventInitBy: 'admin',
+      target: `Repend -> ${batch_id}`,
+      time: moment().format('MMMM Do YYYY, h:mm:ss a')
     })
-    .catch(err => { 
-      console.log(err);
-      res.send('::later::mail::edit::fail::delete::');
-    })
+
+  } catch (err) { 
+    console.log(err);
+    res.send('::later::mail::edit::fail::delete::');
+  }
 })
 
 // Retrieve
@@ -131,15 +140,15 @@ router.get('/retrieve', async (req, res, next) => {
     url: '/v3/user/scheduled_sends'
   };
 
-  await sgClient.request(request)
-    .then(([response, body]) => { 
-      console.log(body)
-      res.send(body)
-    }) 
-    .catch(err => { 
-      console.log(err)
-      res.send(err)
-    })
+  try {
+    const [response, body] = sgClient.request(request);
+    console.log(body);
+    res.send(body);
+
+  } catch (err) { 
+    console.log(err);
+    res.send(err);
+  }
 })
 
 router.get('/retrieve/:batchId', async (req, res, next) => { 
@@ -149,15 +158,15 @@ router.get('/retrieve/:batchId', async (req, res, next) => {
     url: `/v3/user/scheduled_sends/${batchId}`
   };
 
-  await sgClient.request(request)
-    .then(([response, body]) => {
-      console.log(body);
-      res.send('::later::mail::edit::success::retrieve::');
-    })
-    .catch(err => { 
-      console.log(err);
-      res.send('::later::mail::edit::fail::retrieve::');
-    })
+  try {
+    const [response, body] = sgClient.request(request);
+    console.log(body);
+    res.send(body);
+
+  } catch (err) { 
+    console.log(err);
+    res.send(err);
+  }
 })
 
 module.exports = router;
