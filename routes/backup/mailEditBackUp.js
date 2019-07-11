@@ -1,6 +1,6 @@
 const express = require('express');
-const Later = require('../models').Later;
-const Log = require('../models').Log;
+const Later = require('../../models').Later;
+const Log = require('../../models').Log;
 const moment = require('moment');
 const router = express.Router();
 
