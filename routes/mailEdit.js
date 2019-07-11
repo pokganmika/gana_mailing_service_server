@@ -33,8 +33,7 @@ router.get('/', async (req, res, next) => {
 
   try {
     oldData.forEach(element => { 
-      const result = Later.destroy({ where: { id: element.id } });
-      console.log('::olddata::delete::success:: ---> : ', result);
+      Later.destroy({ where: { id: element.id } });
     })
 
   } catch (err) { 
@@ -58,12 +57,14 @@ router.post('/pause', async (req, res, next) => {
     console.log('::later::mail::edit::response::check:: ---> : ', body);
 
     await Later.update({ status: 'Pause' }, { where: { id } })
+    const data = await Later.findOne({ where: { id } });
+
     await Log.create({
       category: 'SCHEDULED',
       operName: 'Send Later - Pause',
       status: true,
       eventInitBy: 'admin',
-      target: `Pause -> ${batch_id}`,
+      target: `Pause -> Email Title : ${data.emailTitle}`,
       time: moment().format('MMMM Do YYYY, h:mm:ss a')
     })
 
@@ -90,12 +91,14 @@ router.post('/cancel', async (req, res, next) => {
     res.send('::later::mail::edit::success::cancel::');
 
     await Later.update({ status: 'Cancel' }, { where: { id } })
+    const data = await Later.findOne({ where: { id } });
+
     await Log.create({
       category: 'SCHEDULED',
       operName: 'Send Later - Cancel',
       status: true,
       eventInitBy: 'admin',
-      target: `Cancel -> ${batch_id}`,
+      target: `Cancel -> Email Title : ${data.emailTitle}`,
       time: moment().format('MMMM Do YYYY, h:mm:ss a')
     })
     
@@ -117,13 +120,15 @@ router.post('/delete', async (req, res, next) => {
     console.log(body);
     res.send('::later::mail::edit::success::delete::');
 
-    await Later.update({ status: 'Pending' }, { where: { id } })
+    await Later.update({ status: 'Pending' }, { where: { id } });
+    const data = await Later.findOne({ where: { id } });
+
     await Log.create({
       category: 'SCHEDULED',
       operName: 'Send Later - Repend',
       status: true,
       eventInitBy: 'admin',
-      target: `Repend -> ${batch_id}`,
+      target: `Repend -> Email Title : ${data.emailTitle}`,
       time: moment().format('MMMM Do YYYY, h:mm:ss a')
     })
 
