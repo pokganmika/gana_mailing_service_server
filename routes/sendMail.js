@@ -146,44 +146,88 @@ router.post('/', async (req, res, next) => {
         emails.subscribed && emailArr.push({ email: emails.email })
       );
 
-      const msg = {
-        to: emailArr,
-        from: 'GanaProject <no-reply@ganacoin.io>',
-        subject: emailTitle,
-        text: emailTitle,
-        html,
-        asm: {
-          group_id
-        }
-      };
-      await sgMail
-        .sendMultiple(msg)
-        .then(data => { 
-          console.log("mail::send::success::")
-          res.send("mail sending success")
+      const dbRefine = data => { 
+        // return new Promise((resolve, reject) => { 
 
-          Log.create({
-            category: 'EMAIL',
-            operName: 'Send Mail (ALL)',
-            status: true,
-            eventInitBy: 'admin',
-            target: `send all - Title: ${emailTitle}`,
-            time: moment().format('MMMM Do YYYY, h:mm:ss a')
-          })
-        })
-        .catch(err => {
-          console.log("mail::send::error::", err)
-          res.send("mail sendding fail")
+          const result = [];
+          const tempArr = [];
 
-          Log.create({
-            category: 'EMAIL',
-            operName: 'Send Mail (ALL)',
-            status: false,
-            eventInitBy: 'admin',
-            target: `send all - Title: ${emailTitle}`,
-            time: moment().format('MMMM Do YYYY, h:mm:ss a')
-          })
-        })
+          for (let i = 0; i < data.length; i++) { 
+            if (tempArr.length === 500) { 
+              const passed = tempArr.slice();
+              result.push(passed);
+              tempArr.splice(0);
+            }
+            tempArr.push(data[i]);
+          }
+          result.push(tempArr);
+          return result;
+
+          // resolve(result);
+
+        // })
+
+      }
+
+      const refinedDb = dbRefine(emailArr);
+
+      console.log('::mails::check::', refinedDb);
+      for (let i = 0; i < refinedDb.length; i++) { 
+        const msg = {
+          to: refinedDb[i],
+          from: 'GanaProject <no-reply@ganacoin.io>',
+          subject: emailTitle,
+          text: emailTitle,
+          html,
+          asm: {
+            group_id
+          }
+        };
+
+        sgMail.sendMultiple(msg)
+          .then(data => console.log(JSON.stringify(data, null, 2)))
+          .catch(err => console.log(JSON.stringify(err, null, 2)))
+
+      }
+
+      // const msg = {
+      //   to: emailArr,
+      //   from: 'GanaProject <no-reply@ganacoin.io>',
+      //   subject: emailTitle,
+      //   text: emailTitle,
+      //   html,
+      //   asm: {
+      //     group_id
+      //   }
+      // };
+      // await sgMail
+      //   .sendMultiple(msg)
+      //   .then(data => { 
+      //     console.log("mail::send::success::")
+      //     res.send("mail sending success")
+
+      //     Log.create({
+      //       category: 'EMAIL',
+      //       operName: 'Send Mail (ALL)',
+      //       status: true,
+      //       eventInitBy: 'admin',
+      //       target: 'send all',
+      //       time: moment().format('MMMM Do YYYY, h:mm:ss a')
+      //     })
+      //   })
+      //   .catch(err => {
+      //     console.log("mail::send::error::", err)
+      //     res.send("mail sendding fail")
+
+      //     Log.create({
+      //       category: 'EMAIL',
+      //       operName: 'Send Mail (ALL)',
+      //       status: false,
+      //       eventInitBy: 'admin',
+      //       target: 'send all',
+      //       time: moment().format('MMMM Do YYYY, h:mm:ss a')
+      //     })
+      //   })
     }
   })
 })
@@ -219,7 +263,7 @@ router.post('/test', async (req, res, next) => {
         operName: 'Test Mail Send',
         status: true,
         eventInitBy: 'admin',
-        target: `To: ${email} / Title: ${emailTitle}`,
+        target: email,
         time: moment().format('MMMM Do YYYY, h:mm:ss a')
       })
     })
@@ -232,7 +276,7 @@ router.post('/test', async (req, res, next) => {
         operName: 'Test Mail Send',
         status: false,
         eventInitBy: 'admin',
-        target: `To: ${email} / Title: ${emailTitle}`,
+        target: email,
         time: moment().format('MMMM Do YYYY, h:mm:ss a')
       })
     })
@@ -390,7 +434,7 @@ router.post('/sendlater', async (req, res, next) => {
             operName: 'Send Later',
             status: true,
             eventInitBy: 'admin',
-            target: `send all - Title: ${emailTitle} / ST: ${strTime}`,
+            target: `send all - RT: ${strTime}`,
             time: moment().format('MMMM Do YYYY, h:mm:ss a')
           })
         })
@@ -403,7 +447,7 @@ router.post('/sendlater', async (req, res, next) => {
             operName: 'Send Later',
             status: false,
             eventInitBy: 'admin',
-            target: `send all - Title: ${emailTitle} / ST: ${strTime}`,
+            target: `send all - RT: ${strTime}`,
             time: moment().format('MMMM Do YYYY, h:mm:ss a')
           })
         })

@@ -11,7 +11,8 @@ const usersRouter = require('./routes/users');
 const subscribeRouter = require('./routes/subscribe');
 const sendMailRouter = require('./routes/sendMail');
 const logRouter = require('./routes/log');
-const mailEdit = require('./routes/mailEdit');
+const mailEditRouter = require('./routes/mailEdit');
+const suppressionsRouter = require('./routes/suppressions');
 //TODO: add router
 
 const sequelize = require('./models').sequelize;
@@ -37,7 +38,8 @@ app.use('/users', usersRouter);
 app.use('/subscribe', subscribeRouter);
 app.use('/sendmail', sendMailRouter);
 app.use('/log', logRouter);
-app.use('/mailedit', mailEdit);
+app.use('/mailedit', mailEditRouter);
+app.use('/suppressions', suppressionsRouter)
 
 app.use('*', function (req, res) {
   res.sendFile(path.join(__dirname, './dist/index.html'))
