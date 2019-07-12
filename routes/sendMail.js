@@ -152,6 +152,7 @@ const editTemplate = data => {
 
 /**
  * TODO: maxItems: 1000
+ * TODO: throw error
  */
 router.post('/', async (req, res, next) => {
   const params = { TableName };
@@ -188,9 +189,33 @@ router.post('/', async (req, res, next) => {
 
         sgMail.sendMultiple(msg)
           .then(data => console.log(JSON.stringify(data, null, 2)))
-          .catch(err => console.log(JSON.stringify(err, null, 2)))
+          .catch(err => {
+            console.log(JSON.stringify(err, null, 2))
+            res.send('::sendmail::fail::')
 
+            Log.create({
+              category: 'EMAIL',
+              operName: 'Send Mail (ALL)',
+              status: false,
+              eventInitBy: 'admin',
+              target: 'send all',
+              time: moment().format('MMMM Do YYYY, h:mm:ss a')
+            })
+
+            throw new Error('send grid mail - mail sending error (send mail)')
+          })
       }
+
+      Log.create({
+        category: 'EMAIL',
+        operName: 'Send Mail (ALL)',
+        status: true,
+        eventInitBy: 'admin',
+        target: 'send all',
+        time: moment().format('MMMM Do YYYY, h:mm:ss a')
+      })
+
+      res.send('::sendmail::success::')
 
       // const msg = {
       //   to: emailArr,
@@ -286,7 +311,7 @@ router.post('/test', async (req, res, next) => {
 
 /**
  * TODO: allowNull -> minute / second
- * TODO: need batch_id
+ * TODO: throw error
  * TODO: maxItems: 1000
  * 
  * Scheduling more than 72 hours in advance is forbidden.
@@ -406,7 +431,7 @@ router.post('/sendlater', async (req, res, next) => {
 
       const refinedDb = dbRefine(emailArr);
 
-      console.log('::mails::check::', refineDb);
+      console.log('::mails::check::', refinedDb);
       for (let i = 0; i < refinedDb.length; i++) { 
         const msg = {
           to: refinedDb[i],
@@ -422,8 +447,41 @@ router.post('/sendlater', async (req, res, next) => {
 
         sgMail.sendMultiple(msg)
           .then(data => console.log(JSON.stringify(data, null, 2)))
-          .catch(err => console.log(JSON.stringify(err, null, 2)))
+          .catch(err => {
+            console.log(JSON.stringify(err, null, 2))
+            res.send('::sendlater::fail::')
+
+            Log.create({
+              category: 'EMAIL',
+              operName: 'Send Later',
+              status: false,
+              eventInitBy: 'admin',
+              target: `send all - RT: ${strTime}`,
+              time: moment().format('MMMM Do YYYY, h:mm:ss a')
+            })
+
+            throw new Error('send grid mail - mail sending error (send later)')
+          })
       }
+
+      Later.create({
+        emailTitle,
+        batchId: batch_id,
+        status: 'Pending',
+        scheduledTime: unixTime * 1000,
+        time: moment().format('MMMM Do YYYY, h:mm:ss a')
+      })
+
+      Log.create({
+        category: 'EMAIL',
+        operName: 'Send Later',
+        status: true,
+        eventInitBy: 'admin',
+        target: `send all - RT: ${strTime}`,
+        time: moment().format('MMMM Do YYYY, h:mm:ss a')
+      })
+
+      res.send('::sendlater::success::')
 
       // const msg = {
       //   to: emailArr, // maxItems : 1000 

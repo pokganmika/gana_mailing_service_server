@@ -6,7 +6,6 @@ const router = express.Router();
 router.get('/', async (req, res, next) => { 
   try {
     const data = await Log.findAll();
-    console.log('::total::log::success::check:: ---> : ', data);
     const tempData = JSON.parse(JSON.stringify(data, null, 2));
     const result = [];
 
@@ -38,7 +37,7 @@ router.get('/', async (req, res, next) => {
     res.send(err);
 
   }
-  
+
   // await Log.findAll()
   //   .then(data => { 
   //     // TODO: can't see the data
