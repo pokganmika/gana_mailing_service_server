@@ -39,7 +39,32 @@ AWS.config.update(awsConfig);
 const TableName = process.env.TABLE_NAME;
 const docClient = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 
-// template module
+
+// ===== mail sending helper ======
+const dbRefine = data => { 
+  // return new Promise((resolve, reject) => { 
+
+    const result = [];
+    const tempArr = [];
+
+    for (let i = 0; i < data.length; i++) { 
+      if (tempArr.length === 500) { 
+        const passed = tempArr.slice();
+        result.push(passed);
+        tempArr.splice(0);
+      }
+      tempArr.push(data[i]);
+    }
+    result.push(tempArr);
+    return result;
+
+    // resolve(result);
+
+  // })
+
+}
+
+// ===== template module =====
 const infoMailOrigin = '<a href="mailto:info@ganacoin.io" style="color: white;">info@ganacoin.io</a>';
 const addition = '&nbsp;|&nbsp;';
 
@@ -145,29 +170,6 @@ router.post('/', async (req, res, next) => {
       await Items.forEach(emails =>
         emails.subscribed && emailArr.push({ email: emails.email })
       );
-
-      const dbRefine = data => { 
-        // return new Promise((resolve, reject) => { 
-
-          const result = [];
-          const tempArr = [];
-
-          for (let i = 0; i < data.length; i++) { 
-            if (tempArr.length === 500) { 
-              const passed = tempArr.slice();
-              result.push(passed);
-              tempArr.splice(0);
-            }
-            tempArr.push(data[i]);
-          }
-          result.push(tempArr);
-          return result;
-
-          // resolve(result);
-
-        // })
-
-      }
 
       const refinedDb = dbRefine(emailArr);
 
@@ -402,55 +404,76 @@ router.post('/sendlater', async (req, res, next) => {
       );
       console.log('forEach::check:: ', emailArr);
 
-      const msg = {
-        to: emailArr, // maxItems : 1000 
-        from: 'GanaProject <no-reply@ganacoin.io>',
-        send_at: unixTime,
-        subject: emailTitle,
-        text: emailTitle,
-        html,
-        batch_id,
-        asm: {
-          group_id
-        }
-      };
+      const refinedDb = dbRefine(emailArr);
 
-      await sgMail
-        .sendMultiple(msg)
-        .then(data => { 
-          console.log("mail::send::success::")
-          res.send("mail sending success")
+      console.log('::mails::check::', refineDb);
+      for (let i = 0; i < refinedDb.length; i++) { 
+        const msg = {
+          to: refinedDb[i],
+          from: 'GanaProject <no-reply@ganacoin.io>',
+          subject: emailTitle,
+          text: emailTitle,
+          html,
+          batch_id,
+          asm: {
+            group_id
+          }
+        };
 
-          Later.create({
-            emailTitle,
-            batchId: batch_id,
-            status: 'Pending',
-            scheduledTime: unixTime * 1000,
-            time: moment().format('MMMM Do YYYY, h:mm:ss a')
-          })
+        sgMail.sendMultiple(msg)
+          .then(data => console.log(JSON.stringify(data, null, 2)))
+          .catch(err => console.log(JSON.stringify(err, null, 2)))
+      }
 
-          Log.create({
-            category: 'EMAIL',
-            operName: 'Send Later',
-            status: true,
-            eventInitBy: 'admin',
-            target: `send all - RT: ${strTime}`,
-            time: moment().format('MMMM Do YYYY, h:mm:ss a')
-          })
-        })
-        .catch(err => {
-          console.log("mail::send::error::", err)
-          res.send("mail sendding fail")
+      // const msg = {
+      //   to: emailArr, // maxItems : 1000 
+      //   from: 'GanaProject <no-reply@ganacoin.io>',
+      //   send_at: unixTime,
+      //   subject: emailTitle,
+      //   text: emailTitle,
+      //   html,
+      //   batch_id,
+      //   asm: {
+      //     group_id
+      //   }
+      // };
 
-          Log.create({
-            category: 'EMAIL',
-            operName: 'Send Later',
-            status: false,
-            eventInitBy: 'admin',
-            target: `send all - RT: ${strTime}`,
-            time: moment().format('MMMM Do YYYY, h:mm:ss a')
-          })
-        })
+      // await sgMail
+      //   .sendMultiple(msg)
+      //   .then(data => { 
+      //     console.log("mail::send::success::")
+      //     res.send("mail sending success")
+
+      //     Later.create({
+      //       emailTitle,
+      //       batchId: batch_id,
+      //       status: 'Pending',
+      //       scheduledTime: unixTime * 1000,
+      //       time: moment().format('MMMM Do YYYY, h:mm:ss a')
+      //     })
+
+      //     Log.create({
+      //       category: 'EMAIL',
+      //       operName: 'Send Later',
+      //       status: true,
+      //       eventInitBy: 'admin',
+      //       target: `send all - RT: ${strTime}`,
+      //       time: moment().format('MMMM Do YYYY, h:mm:ss a')
+      //     })
+      //   })
+      //   .catch(err => {
+      //     console.log("mail::send::error::", err)
+      //     res.send("mail sendding fail")
+
+      //     Log.create({
+      //       category: 'EMAIL',
+      //       operName: 'Send Later',
+      //       status: false,
+      //       eventInitBy: 'admin',
+      //       target: `send all - RT: ${strTime}`,
+      //       time: moment().format('MMMM Do YYYY, h:mm:ss a')
+      //     })
+      //   })
     }
   })
 })
