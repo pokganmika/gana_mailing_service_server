@@ -23,14 +23,24 @@ router.get('/main/weekly', async (req, res, next) => {
     url: '/v3/stats',
   }
 
-  await sgClient.request(request)
-    .then(([response, body]) => {
-      res.status(response.statusCode).send(body)
-    })
-    .catch(err => {
-      console.log(err)
-      res.send(err)
-    });
+  try {
+    const [response, body] = await sgClient.request(request);
+    res.status(response.statusCode).send(body);
+
+  } catch (err) { 
+    console.log(err);
+    res.send(err);
+    // res.status(401).send(err);
+  }
+
+  // await sgClient.request(request)
+  //   .then(([response, body]) => {
+  //     res.status(response.statusCode).send(body)
+  //   })
+  //   .catch(err => {
+  //     console.log(err)
+  //     res.send(err)
+  //   });
 });
 
 router.get('/main/monthly', async (req, res, next) => {
@@ -44,14 +54,23 @@ router.get('/main/monthly', async (req, res, next) => {
     url: '/v3/stats',
   }
 
-  await sgClient.request(request)
-    .then(([response, body]) => {
-      res.status(response.statusCode).send(body)
-    })
-    .catch(err => {
-      console.log(err)
-      res.send(err)
-    });
+  try {
+    const [response, body] = await sgClient.request(request);
+    res.status(response.statusCode).send(body);
+
+  } catch (err) { 
+    console.log(err);
+    res.send(err);
+  }
+
+  // await sgClient.request(request)
+  //   .then(([response, body]) => {
+  //     res.status(response.statusCode).send(body)
+  //   })
+  //   .catch(err => {
+  //     console.log(err)
+  //     res.send(err)
+  //   });
 });
 
 module.exports = router;
