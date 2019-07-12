@@ -167,7 +167,7 @@ router.post('/', async (req, res, next) => {
             operName: 'Send Mail (ALL)',
             status: true,
             eventInitBy: 'admin',
-            target: 'send all',
+            target: `send all - Title: ${emailTitle}`,
             time: moment().format('MMMM Do YYYY, h:mm:ss a')
           })
         })
@@ -180,7 +180,7 @@ router.post('/', async (req, res, next) => {
             operName: 'Send Mail (ALL)',
             status: false,
             eventInitBy: 'admin',
-            target: 'send all',
+            target: `send all - Title: ${emailTitle}`,
             time: moment().format('MMMM Do YYYY, h:mm:ss a')
           })
         })
@@ -219,7 +219,7 @@ router.post('/test', async (req, res, next) => {
         operName: 'Test Mail Send',
         status: true,
         eventInitBy: 'admin',
-        target: email,
+        target: `To: ${email} / Title: ${emailTitle}`,
         time: moment().format('MMMM Do YYYY, h:mm:ss a')
       })
     })
@@ -232,7 +232,7 @@ router.post('/test', async (req, res, next) => {
         operName: 'Test Mail Send',
         status: false,
         eventInitBy: 'admin',
-        target: email,
+        target: `To: ${email} / Title: ${emailTitle}`,
         time: moment().format('MMMM Do YYYY, h:mm:ss a')
       })
     })
@@ -390,7 +390,7 @@ router.post('/sendlater', async (req, res, next) => {
             operName: 'Send Later',
             status: true,
             eventInitBy: 'admin',
-            target: `send all - RT: ${strTime}`,
+            target: `send all - Title: ${emailTitle} / ST: ${strTime}`,
             time: moment().format('MMMM Do YYYY, h:mm:ss a')
           })
         })
@@ -403,7 +403,7 @@ router.post('/sendlater', async (req, res, next) => {
             operName: 'Send Later',
             status: false,
             eventInitBy: 'admin',
-            target: `send all - RT: ${strTime}`,
+            target: `send all - Title: ${emailTitle} / ST: ${strTime}`,
             time: moment().format('MMMM Do YYYY, h:mm:ss a')
           })
         })
