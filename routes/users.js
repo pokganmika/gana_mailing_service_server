@@ -1,7 +1,7 @@
 const express = require('express');
 const User = require('../models').User;
 const Log = require('../models').Log;
-const bcypt = require('bcrypt');
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
 const secretKey = process.env.JWT_SECRET;
@@ -14,7 +14,14 @@ router.post('/qwer', async (req, res, next) => {
   console.log('::admin::register::data:: ---> : ', id, password)
 
   try { 
-    await User.create({ id, password })
+    const signedUser = await User.findOne({ where: { id } });
+    if (signedUser) { 
+      res.send('Account already in use ');
+    }
+    
+    const hash = await bcrypt.hash(password, 12);
+
+    await User.create({ id, password: hash })
     res.send('::admin::register::success::');
 
     Log.create({
@@ -45,14 +52,21 @@ router.post('/login', async (req, res, next) => {
   const { id, password } = req.body;
 
   try {
-    const data = await User.findOne({ where: { id } });
-    console.log('::admin::login::data::check:: ---> : ', data.id, data.password)
+    const signedUser = await User.findOne({ where: { id } });
+    console.log('::admin::login::data::check:: ---> : ', signedUser.id, signedUser.password)
 
-    if (data.id === id && data.password === password) {
-      const token = jwt.sign({ id: data.id }, secretKey, { expiresIn: '7d' });
-      res.send({ res: true, message: '::admin::login::success::', token })
+    if (signedUser) {
+      const result = await bcrypt.compare(password, signedUser.password);
+      console.log('::result::check::',result)
+
+      if (result) {
+        const token = jwt.sign({ id: signedUser.id }, secretKey, { expiresIn: '7d' });
+        res.send({ res: true, message: '::admin::login::success::', token })
+      } else {
+        res.send({ res: false, message: '::admin::login::not::match::' })
+      }
     } else { 
-      res.send({ res: false, message: '::admin::login::not::match::' })
+      res.send({ res: false, message: '::admin::login::not::user::' })
     }
 
     // await Log.create({
