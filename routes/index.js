@@ -25,6 +25,8 @@ router.get('/main/weekly', async (req, res, next) => {
 
   try {
     const [response, body] = await sgClient.request(request);
+    console.log('::main::weekly::data::response::',JSON.stringify(response, null, 2));
+    console.log('::main::weekly::data::body::',JSON.stringify(body, null, 2));
     res.status(response.statusCode).send(body);
 
   } catch (err) { 
@@ -56,8 +58,9 @@ router.get('/main/monthly', async (req, res, next) => {
 
   try {
     const [response, body] = await sgClient.request(request);
+    console.log('::main::monthly::data::response::',JSON.stringify(response, null, 2));
+    console.log('::main::monthly::data::body::',JSON.stringify(body, null, 2));
     res.status(response.statusCode).send(body);
-
   } catch (err) { 
     console.log(err);
     res.send(err);

@@ -26,19 +26,23 @@ router.get('/', async (req, res, next) => {
     console.log('::email::edit::list::success::check:: ---> : ', JSON.stringify(laterData, null, 2));
     res.send(result);
 
-  } catch (err) { 
-    console.log('::email::edit::list::fail::check:: ---> : ', err)
-    res.send(err);
-  }
-
-  try {
     oldData.forEach(element => { 
       Later.destroy({ where: { id: element.id } });
     })
 
   } catch (err) { 
-    console.log('::olddata::delete::fail:: ---> : ', err)
+    console.log('::email::edit::list::fail::check:: ---> : ', err)
+    res.send(err);
   }
+
+  // try {
+  //   oldData.forEach(element => { 
+  //     Later.destroy({ where: { id: element.id } });
+  //   })
+
+  // } catch (err) { 
+  //   console.log('::olddata::delete::fail:: ---> : ', err)
+  // }
 });
 
 router.post('/pause', async (req, res, next) => { 
