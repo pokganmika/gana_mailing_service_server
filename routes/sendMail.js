@@ -74,7 +74,15 @@ const tagFilter = text => {
 
 const setSeg = arr => {
   if (arr.length !== 0) { 
-    const tempArr = arr.map(e => `<a href=${e.url} target="_blank" style="color: white; text-decoration: underline;">${e.title}</a>`)
+    const tempArr = arr.map(e => {
+      // return `<a href=${e.url} target="_blank" style="color: white; text-decoration: underline;">${e.title}</a>`
+      if (e.url.slice(0, 4) === 'http') {
+        return `<a href=${e.url} target="_blank" style="color: white; text-decoration: underline;">${e.title}</a>`;
+      } else { 
+        const refinedUrl = `https://${e.url}`;
+        return `<a href=${refinedUrl} target="_blank" style="color: white; text-decoration: underline;">${e.title}</a>`;
+      }
+    })
     if (tempArr.length === 1) { 
       return tempArr[0];
     }
@@ -459,8 +467,6 @@ router.post('/sendlater', async (req, res, next) => {
               target: `send all - RT: ${strTime}`,
               time: moment().format('MMMM Do YYYY, h:mm:ss a')
             })
-
-            throw new Error('send grid mail - mail sending error (send later)')
           })
       }
 
