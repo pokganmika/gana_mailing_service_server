@@ -210,7 +210,7 @@ router.post('/', async (req, res, next) => {
               time: moment().format('MMMM Do YYYY, h:mm:ss a')
             })
 
-            throw new Error('send grid mail - mail sending error (send mail)')
+            // throw new Error('send grid mail - mail sending error (send mail)')
           })
       }
 
