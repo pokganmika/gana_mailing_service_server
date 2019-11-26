@@ -33,6 +33,10 @@ const docClient = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 //   })
 // }
 
+// ===== TODO: mail data =====
+const mailData = require('../SubscribeTable.json');
+// =====                 =====
+
 // TODO: update count
 router.get('/main', async (req, res, next) => { 
   const params = {
@@ -73,26 +77,82 @@ router.get('/main', async (req, res, next) => {
 })
 
 router.get('/', async (req, res, next) => { 
-  const params = {
-    TableName
-  };
-  await docClient.scan(params, function (err, data) { 
-    if (err) {
-      console.log("SubscribeTable::describeTable::error - " + JSON.stringify(err, null, 2));
-      res.send(err);
-    } else { 
-      console.log("SubscribeTable::describeTable::success - " + JSON.stringify(data, null, 2));
-      const result = [];
-      for (let i = 0; i < data.Items.length; i++) { 
-        data.Items[i].created_at = new Date(data.Items[i].created_at).toString().slice(0, 24);
-        result.push(data.Items[i]);
+  // const params = { TableName };
+
+  function onScan(params) {
+    var lastEvaluatedKey = {};
+    var previous_item = [];
+
+    return new Promise(function (resolve, reject) {
+      function moreScan() {
+        if (Object.keys(lastEvaluatedKey).length) {
+          params.ExclusiveStartKey = lastEvaluatedKey;
+        }
+        docClient.scan(params, function (err, data){
+          if (err) reject(err);
+          if (data != null) {
+            previous_item = previous_item.concat(data.Items);
+
+            if (data.lastEvaluatedKey) {
+              lastEvaluatedKey = data.LastEvaluatedKey;
+              moreScan();
+            } else {
+              resolve(previous_item);
+            }
+            console.log('::scan::data::result:: ---> : ', data.Count);
+          } else {
+            reject('Error')
+          }
+        })
       }
-      res.send(result);
-      // res.send(data);
-      // res.send(JSON.stringify(data));
-    }
-  })
+      moreScan();
+    }).catch(function (e){
+      console.log(e);
+    })
+  }
+  
+  const result = onScan({ TableName });
+  console.log(`-=-=-=-${result}-=-=-=-`);
+  res.send(result);
+
+  // await docClient.scan(params, function (err, data) { 
+  //   if (err) {
+  //     console.log("SubscribeTable::describeTable::error - " + JSON.stringify(err, null, 2));
+  //     res.send(err);
+  //   } else { 
+  //     console.log("SubscribeTable::describeTable::success - " + JSON.stringify(data, null, 2));
+  //     const result = [];
+  //     for (let i = 0; i < data.Items.length; i++) { 
+  //       data.Items[i].created_at = new Date(data.Items[i].created_at).toString().slice(0, 24);
+  //       result.push(data.Items[i]);
+  //     }
+  //     res.send(result);
+  //     // res.send(data);
+  //     // res.send(JSON.stringify(data));
+  //   }
+  // })
 })
+// router.get('/', async (req, res, next) => { 
+//   const params = {
+//     TableName
+//   };
+//   await docClient.scan(params, function (err, data) { 
+//     if (err) {
+//       console.log("SubscribeTable::describeTable::error - " + JSON.stringify(err, null, 2));
+//       res.send(err);
+//     } else { 
+//       console.log("SubscribeTable::describeTable::success - " + JSON.stringify(data, null, 2));
+//       const result = [];
+//       for (let i = 0; i < data.Items.length; i++) { 
+//         data.Items[i].created_at = new Date(data.Items[i].created_at).toString().slice(0, 24);
+//         result.push(data.Items[i]);
+//       }
+//       res.send(result);
+//       // res.send(data);
+//       // res.send(JSON.stringify(data));
+//     }
+//   })
+// })
 
 // TODO: created_at / subscribed => modify!
 router.post('/add', async (req, res, next) => { 

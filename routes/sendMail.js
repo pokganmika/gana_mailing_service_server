@@ -39,6 +39,9 @@ AWS.config.update(awsConfig);
 const TableName = process.env.TABLE_NAME;
 const docClient = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 
+// ===== TODO: mail data =====
+const mailData = require('../SubscribeTable.json');
+// =====                 =====
 
 // ===== mail sending helper ======
 const dbRefine = data => { 
@@ -166,8 +169,10 @@ router.post('/', async (req, res, next) => {
   const params = { TableName };
   const html = editTemplate(req.body);
 
-  const emailArr = [];
+  // const emailArr = []; ---> mailData
   const { emailTitle } = req.body;
+
+  
 
   await docClient.scan(params, async (err, data) => { 
     if (err) {
