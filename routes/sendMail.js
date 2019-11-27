@@ -45,11 +45,8 @@ const mailData = require('../SubscribeTable.json');
 
 // ===== mail sending helper ======
 const dbRefine = data => { 
-  // return new Promise((resolve, reject) => { 
-
     const result = [];
     const tempArr = [];
-
     for (let i = 0; i < data.length; i++) { 
       if (tempArr.length === 500) { 
         const passed = tempArr.slice();
@@ -60,11 +57,6 @@ const dbRefine = data => {
     }
     result.push(tempArr);
     return result;
-
-    // resolve(result);
-
-  // })
-
 }
 
 // ===== template module =====
@@ -176,7 +168,7 @@ router.post('/', async (req, res, next) => {
   for (let i = 0; i < emailArr.length; i++) {
     sendMailArr.push({email: emailArr[i].email.trim()})
   }
-  
+
   const refinedDb = dbRefine(sendMailArr);
 
   for (let i = 0; i < refinedDb.length; i++) { 
@@ -225,10 +217,7 @@ router.post('/', async (req, res, next) => {
 
 router.post('/test', async (req, res, next) => { 
   console.log('sendmail::test::data::check:: ----- > : ', req.body);
-  const {
-    email,
-    emailTitle,
-  } = req.body;
+  const { email, emailTitle } = req.body;
 
   const html = editTemplate(req.body);
 
@@ -445,112 +434,8 @@ router.post('/sendlater', async (req, res, next) => {
 
       res.send('::sendlater::success::')
 
-      // const msg = {
-      //   to: emailArr, // maxItems : 1000 
-      //   from: 'GanaProject <no-reply@ganacoin.io>',
-      //   send_at: unixTime,
-      //   subject: emailTitle,
-      //   text: emailTitle,
-      //   html,
-      //   batch_id,
-      //   asm: {
-      //     group_id
-      //   }
-      // };
-
-      // await sgMail
-      //   .sendMultiple(msg)
-      //   .then(data => { 
-      //     console.log("mail::send::success::")
-      //     res.send("mail sending success")
-
-      //     Later.create({
-      //       emailTitle,
-      //       batchId: batch_id,
-      //       status: 'Pending',
-      //       scheduledTime: unixTime * 1000,
-      //       time: moment().format('MMMM Do YYYY, h:mm:ss a')
-      //     })
-
-      //     Log.create({
-      //       category: 'EMAIL',
-      //       operName: 'Send Later',
-      //       status: true,
-      //       eventInitBy: 'admin',
-      //       target: `send all - RT: ${strTime}`,
-      //       time: moment().format('MMMM Do YYYY, h:mm:ss a')
-      //     })
-      //   })
-      //   .catch(err => {
-      //     console.log("mail::send::error::", err)
-      //     res.send("mail sendding fail")
-
-      //     Log.create({
-      //       category: 'EMAIL',
-      //       operName: 'Send Later',
-      //       status: false,
-      //       eventInitBy: 'admin',
-      //       target: `send all - RT: ${strTime}`,
-      //       time: moment().format('MMMM Do YYYY, h:mm:ss a')
-      //     })
-      //   })
     }
   })
-})
-
-// TODO: test router
-
-router.post('/sendlatertest', async (req, res, next) => { 
-  let batch_id;
-  const request = {
-    method: 'POST',
-    url: '/v3/mail/batch'
-  }
-  await sgClient.request(request)
-    .then(([response, body]) => {
-      console.log('::generate::batch::id::success:: ---> : ', body);
-      // console.log('::generate::batch::id::success::');
-      batch_id = body.batch_id;
-      res.send(body)
-    })
-    .catch (err => { 
-      console.log('::generate::batch::id::fail:: ---> : ', err);
-    res.send(err);
-    })
-})
-
-router.get('/sendlatertest', async (req, res, next) => { 
-  const batch_id = `MWQ4YzQyM2MtYTIxZC0xMWU5LTg0NjgtNTI1NDAwYWZiMGU3LTkxNzI1YWU1ZQ`;
-  const request = {
-    method: 'GET',
-    url: `/v3/mail/batch/${batch_id}`
-  }
-  await sgClient.request(request)
-    .then(([response, body]) => { 
-      res.send(body);
-    })
-    .catch(err => { 
-      res.send(err);
-    })
-})
-
-router.get('/sendlatertest2', async (req, res, next) => { 
-  const batch_id = `ZDY0ZTBiNTgtYTIwMy0xMWU5LWFlODQtNTI1NDAwNjhkZjVmLThhMjM3N2NlMA`;
-  const request = {
-    qs: {
-      batch_id,
-      status: "pause"
-    },
-    method: 'GET',
-    url: '/v3/user/schedule_send'
-  }
-  await sgClient.request(request)
-    .then(([response, body]) => { 
-      res.send(body);
-    })
-    .catch(err => { 
-      res.send(err);
-    })
 })
 
 module.exports = router;
