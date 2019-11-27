@@ -158,7 +158,7 @@ const editTemplate = data => {
  * TODO: throw error
  */
 router.post('/', async (req, res, next) => {
-  const params = { TableName };
+  // const params = { TableName };
   const html = editTemplate(req.body);
 
   const sendMailArr = [];
@@ -166,7 +166,7 @@ router.post('/', async (req, res, next) => {
   const { emailTitle } = req.body;
 
   for (let i = 0; i < emailArr.length; i++) {
-    sendMailArr.push({email: emailArr[i].email.trim()})
+    sendMailArr.push({ email: emailArr[i].email.trim() })
   }
 
   const refinedDb = dbRefine(sendMailArr);
@@ -345,12 +345,13 @@ router.post('/sendlater', async (req, res, next) => {
   // console.log('::unixTime::check:: ---> : ', unixTime);
   // console.log('::strTime::check:: ---> : ', strTime);
 
-  const params = { TableName };
+  // const params = { TableName };
   const html = editTemplate(req.body);
 
-  const emailArr = [];
+  const sendMailArr = [];
+  const emailArr = mailData;
   const { emailTitle } = req.body;
-
+  
   //-----
   let batch_id;
   const request = {
@@ -370,72 +371,61 @@ router.post('/sendlater', async (req, res, next) => {
     })
   //-----
 
-  await docClient.scan(params, async (err, data) => { 
-    if (err) {
-      console.log("SubscribeTable::sendmail::describeTable::error - " + JSON.stringify(err, null, 2))
-    } else { 
-      console.log("SubscribeTable::sendmail::describeTable::success - " + JSON.stringify(data, null, 2))
-      const { Items, Count, ScannedCount } = data;
+  for (let i = 0; i < emailArr.length; i++) {
+    sendMailArr.push({email: emailArr[i].email.trim()})
+  }
 
-      await Items.forEach(emails =>
-        emails.subscribed && emailArr.push({ email: emails.email })
-      );
-      console.log('forEach::check:: ', emailArr);
+  const refinedDb = dbRefine(sendMailArr);
 
-      const refinedDb = dbRefine(emailArr);
-
-      console.log('::mails::check::', refinedDb);
-      for (let i = 0; i < refinedDb.length; i++) { 
-        const msg = {
-          to: refinedDb[i],
-          from: 'GanaProject <no-reply@ganacoin.io>',
-          subject: emailTitle,
-          text: emailTitle,
-          html,
-          batch_id,
-          asm: {
-            group_id
-          }
-        };
-
-        sgMail.sendMultiple(msg)
-          .then(data => console.log(JSON.stringify(data, null, 2)))
-          .catch(err => {
-            console.log(JSON.stringify(err, null, 2))
-            res.send('::sendlater::fail::')
-
-            Log.create({
-              category: 'EMAIL',
-              operName: 'Send Later',
-              status: false,
-              eventInitBy: 'admin',
-              target: `send all - RT: ${strTime}`,
-              time: moment().format('MMMM Do YYYY, h:mm:ss a')
-            })
-          })
+  for (let i = 0; i < refinedDb.length; i++) { 
+    const msg = {
+      to: refinedDb[i],
+      from: 'GanaProject <no-reply@ganacoin.io>',
+      subject: emailTitle,
+      text: emailTitle,
+      html,
+      batch_id,
+      asm: {
+        group_id
       }
+    };
 
-      Later.create({
-        emailTitle,
-        batchId: batch_id,
-        status: 'Pending',
-        scheduledTime: unixTime * 1000,
-        time: moment().format('MMMM Do YYYY, h:mm:ss a')
-      })
+    sgMail.sendMultiple(msg)
+    .then(data => console.log(JSON.stringify(data, null, 2)))
+    .catch(err => {
+      console.log(JSON.stringify(err, null, 2))
+      res.send('::sendlater::fail::')
 
       Log.create({
         category: 'EMAIL',
         operName: 'Send Later',
-        status: true,
+        status: false,
         eventInitBy: 'admin',
         target: `send all - RT: ${strTime}`,
         time: moment().format('MMMM Do YYYY, h:mm:ss a')
       })
+    })
 
-      res.send('::sendlater::success::')
+  }
 
-    }
+  Later.create({
+    emailTitle,
+    batchId: batch_id,
+    status: 'Pending',
+    scheduledTime: unixTime * 1000,
+    time: moment().format('MMMM Do YYYY, h:mm:ss a')
   })
+
+  Log.create({
+    category: 'EMAIL',
+    operName: 'Send Later',
+    status: true,
+    eventInitBy: 'admin',
+    target: `send all - RT: ${strTime}`,
+    time: moment().format('MMMM Do YYYY, h:mm:ss a')
+  })
+
+  res.send('::sendlater::success::')
 })
 
 module.exports = router;
