@@ -39,6 +39,10 @@ AWS.config.update(awsConfig);
 const TableName = process.env.TABLE_NAME;
 const docClient = new AWS.DynamoDB.DocumentClient({ apiVersion: '2012-08-10' });
 
+// ===== TODO: shelljs (db -> json) =====
+const shell = require('shelljs');
+// =====                            =====
+
 // ===== TODO: mail data =====
 const mailData = require('../SubscribeTable.json');
 // =====                 =====
@@ -158,7 +162,6 @@ const editTemplate = data => {
  * TODO: throw error
  */
 router.post('/', async (req, res, next) => {
-  // const params = { TableName };
   const html = editTemplate(req.body);
 
   const sendMailArr = [];
@@ -345,7 +348,6 @@ router.post('/sendlater', async (req, res, next) => {
   // console.log('::unixTime::check:: ---> : ', unixTime);
   // console.log('::strTime::check:: ---> : ', strTime);
 
-  // const params = { TableName };
   const html = editTemplate(req.body);
 
   const sendMailArr = [];
@@ -426,6 +428,18 @@ router.post('/sendlater', async (req, res, next) => {
   })
 
   res.send('::sendlater::success::')
+})
+
+router.get('/python', async (req, res, next) => {
+  const dbScan = shell.exec('export-dynamodb -t SubscribeTable -f json', {async: true});
+  dbScan.stdout.on('data', function(data) {
+    console.log('::update::data:: ---> : ', data);
+    if (data.includes("Writing to json file.")) {
+      res.send("::update::data::success::");
+    } else {
+      res.send("::update::data::fail::")
+    }
+  })
 })
 
 module.exports = router;
