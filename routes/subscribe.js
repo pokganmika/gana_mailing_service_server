@@ -39,45 +39,21 @@ const mailData = require('../SubscribeTable.json');
 
 // TODO: update count
 router.get('/main', async (req, res, next) => { 
-  const params = {
-    TableName
-  };
-  await docClient.scan(params, function (err, data) { 
-    if (err) {
-      console.log("SubscribeTable::describeTable::error - " + JSON.stringify(err, null, 2));
-      res.send(err);
-    } else { 
-      console.log("SubscribeTable::describeTable::success - " + JSON.stringify(data, null, 2));
-      let unSubsCount = 0;
-      let subsCount = 0;
+  const result = { scannedCount: mailData.length };
 
-      // TODO: DB issue
-      data.Items.forEach(element => { 
-        // console.log('element check : ', element);
-        if (element.subscribed !== 1) {
-        // if (element.subscribed !== true) {
-          unSubsCount = unSubsCount + 1;
-        } else if (element.subscribed === 1) { 
-        // } else if (element.subscribed === true) { 
-          subsCount = subsCount + 1;
-        }
-      })
-
-      const result = {
-        count: data.Count,
-        scannedCount: data.ScannedCount,
-        unSubsCount,
-        subsCount
-      };
-      res.send(result);
-      // res.send(data);
-      // res.send(JSON.stringify(data));
-    }
-  })
+  if (mailData.length > 0) {
+    res.send(result)
+  } else {
+    res.send({ scannedCount: "No Data" })
+  }
 })
 
+// ===========================================
+// TODO: Delete All (Do not touch DB by admin)
+// ===========================================
+// ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 router.get('/', async (req, res, next) => { 
-  // const params = { TableName };
+  const params = { TableName };
 
   function onScan(params) {
     var lastEvaluatedKey = {};
