@@ -169,107 +169,58 @@ router.post('/', async (req, res, next) => {
   const params = { TableName };
   const html = editTemplate(req.body);
 
-  // const emailArr = []; ---> mailData
+  const sendMailArr = [];
+  const emailArr = mailData;
   const { emailTitle } = req.body;
 
+  for (let i = 0; i < emailArr.length; i++) {
+    sendMailArr.push({email: emailArr[i].email.trim()})
+  }
   
+  const refinedDb = dbRefine(sendMailArr);
 
-  await docClient.scan(params, async (err, data) => { 
-    if (err) {
-      console.log("SubscribeTable::sendmail::describeTable::error - " + JSON.stringify(err, null, 2))
-    } else { 
-      console.log("SubscribeTable::sendmail::describeTable::success - " + JSON.stringify(data, null, 2))
-      const { Items, Count, ScannedCount } = data;
-
-      await Items.forEach(emails =>
-        emails.subscribed && emailArr.push({ email: emails.email })
-      );
-
-      const refinedDb = dbRefine(emailArr);
-
-      console.log('::mails::check::', refinedDb);
-      for (let i = 0; i < refinedDb.length; i++) { 
-        const msg = {
-          to: refinedDb[i],
-          from: 'GanaProject <no-reply@ganacoin.io>',
-          subject: emailTitle,
-          text: emailTitle,
-          html,
-          asm: {
-            group_id
-          }
-        };
-
-        sgMail.sendMultiple(msg)
-          .then(data => console.log(JSON.stringify(data, null, 2)))
-          .catch(err => {
-            console.log(JSON.stringify(err, null, 2))
-            res.send('::sendmail::fail::')
-
-            Log.create({
-              category: 'EMAIL',
-              operName: 'Send Mail (ALL)',
-              status: false,
-              eventInitBy: 'admin',
-              target: 'send all',
-              time: moment().format('MMMM Do YYYY, h:mm:ss a')
-            })
-
-            // throw new Error('send grid mail - mail sending error (send mail)')
-          })
+  for (let i = 0; i < refinedDb.length; i++) { 
+    const msg = {
+      to: refinedDb[i],
+      from: 'GanaProject <no-reply@ganacoin.io>',
+      subject: emailTitle,
+      text: emailTitle,
+      html,
+      asm: {
+        group_id
       }
+    };
+
+    sgMail.sendMultiple(msg)
+    .then(data => console.log(JSON.stringify(data, null, 2)))
+    .catch(err => {
+      console.log(JSON.stringify(err, null, 2))
+      res.send('::sendmail::fail::')
 
       Log.create({
         category: 'EMAIL',
         operName: 'Send Mail (ALL)',
-        status: true,
+        status: false,
         eventInitBy: 'admin',
         target: 'send all',
         time: moment().format('MMMM Do YYYY, h:mm:ss a')
       })
 
-      res.send('::sendmail::success::')
+      // throw new Error('send grid mail - mail sending error (send mail)')
+    })
+    
+  }
 
-      // const msg = {
-      //   to: emailArr,
-      //   from: 'GanaProject <no-reply@ganacoin.io>',
-      //   subject: emailTitle,
-      //   text: emailTitle,
-      //   html,
-      //   asm: {
-      //     group_id
-      //   }
-      // };
-      // await sgMail
-      //   .sendMultiple(msg)
-      //   .then(data => { 
-      //     console.log("mail::send::success::")
-      //     res.send("mail sending success")
-
-      //     Log.create({
-      //       category: 'EMAIL',
-      //       operName: 'Send Mail (ALL)',
-      //       status: true,
-      //       eventInitBy: 'admin',
-      //       target: 'send all',
-      //       time: moment().format('MMMM Do YYYY, h:mm:ss a')
-      //     })
-      //   })
-      //   .catch(err => {
-      //     console.log("mail::send::error::", err)
-      //     res.send("mail sendding fail")
-
-      //     Log.create({
-      //       category: 'EMAIL',
-      //       operName: 'Send Mail (ALL)',
-      //       status: false,
-      //       eventInitBy: 'admin',
-      //       target: 'send all',
-      //       time: moment().format('MMMM Do YYYY, h:mm:ss a')
-      //     })
-      //   })
-    }
+  Log.create({
+    category: 'EMAIL',
+    operName: 'Send Mail (ALL)',
+    status: true,
+    eventInitBy: 'admin',
+    target: 'send all',
+    time: moment().format('MMMM Do YYYY, h:mm:ss a')
   })
+
+  res.send('::sendmail::success::')
 })
 
 router.post('/test', async (req, res, next) => { 
