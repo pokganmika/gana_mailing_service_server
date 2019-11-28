@@ -442,4 +442,12 @@ router.get('/python', async (req, res, next) => {
   })
 })
 
+router.get('/reset', async (req, res, next) => {
+  const dbReStart = shell.exec('pm2 restart 0');
+  dbReStart.stdout.on('data', function(data) {
+    console.log('::pm2::restart::', data);
+    res.send('::pm2::restart::');
+  })
+})
+
 module.exports = router;
