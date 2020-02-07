@@ -47,8 +47,8 @@ const shell = require("shelljs");
 // =====                            =====
 
 // ===== TODO: mail data =====
-const mailData = require("../SubscribeTable.json");
-// const testMailData = require("../testSubscribeTable.json");
+// const mailData = require("../SubscribeTable.json");
+const testMailData = require("../testSubscribeTable.json");
 // =====                 =====
 
 // ===== mail sending helper ======
@@ -56,14 +56,15 @@ const dbRefine = data => {
   const result = [];
   const tempArr = [];
   for (let i = 0; i < data.length; i++) {
-    if (tempArr.length === 500) {
+    // if (tempArr.length === 500) {
+    if (tempArr.length === 2) {
       const passed = tempArr.slice();
       result.push(passed);
       tempArr.splice(0);
     }
     // tempArr.push(data[i]);
-    tempArr.push(data[i].email);
-    // tempArr.push({ email: data[i].email });
+    // tempArr.push(data[i].email);
+    tempArr.push({ email: data[i].email });
   }
   result.push(tempArr);
   return result;
@@ -174,8 +175,8 @@ router.post("/", async (req, res, next) => {
   console.log("1. html : ", html);
   const sendMailArr = [];
 
-  const emailArr = mailData;
-  // const emailArr = testMailData;
+  // const emailArr = mailData;
+  const emailArr = testMailData;
   console.log("2. emailArr : ", emailArr);
 
   const { emailTitle } = req.body;
