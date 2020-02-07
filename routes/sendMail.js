@@ -47,8 +47,8 @@ const shell = require("shelljs");
 // =====                            =====
 
 // ===== TODO: mail data =====
-const mailData = require("../SubscribeTable.json");
-const testMailData = require("../testSubscribeTable.json");
+// const mailData = require("../SubscribeTable.json");
+// const testMailData = require("../testSubscribeTable.json");
 // =====                 =====
 
 // ===== mail sending helper ======
@@ -174,8 +174,8 @@ router.post("/", async (req, res, next) => {
   console.log("1. html : ", html);
   const sendMailArr = [];
 
-  // const emailArr = mailData;
-  const emailArr = testMailData;
+  const emailArr = mailData;
+  // const emailArr = testMailData;
   console.log("2. emailArr : ", emailArr);
 
   const { emailTitle } = req.body;
