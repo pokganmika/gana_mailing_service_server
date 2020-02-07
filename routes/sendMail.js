@@ -56,8 +56,7 @@ const dbRefine = data => {
   const result = [];
   const tempArr = [];
   for (let i = 0; i < data.length; i++) {
-    // if (tempArr.length === 500) {
-    if (tempArr.length === 2) {
+    if (tempArr.length === 500) {
       const passed = tempArr.slice();
       result.push(passed);
       tempArr.splice(0);
@@ -172,24 +171,24 @@ const editTemplate = data => {
  */
 router.post("/", async (req, res, next) => {
   const html = editTemplate(req.body);
-  console.log("1. html : ", html);
+  // console.log("1. html : ", html);
   const sendMailArr = [];
 
   const emailArr = mailData;
   // const emailArr = testMailData;
-  console.log("2. emailArr : ", emailArr);
+  // console.log("2. emailArr : ", emailArr);
 
   const { emailTitle } = req.body;
-  console.log("3. emailTitle : ", emailTitle);
+  // console.log("3. emailTitle : ", emailTitle);
 
   for (let i = 0; i < emailArr.length; i++) {
-    console.log("4. emailArr[i].email.trim() : ", emailArr[i].email.trim());
+    // console.log("4. emailArr[i].email.trim() : ", emailArr[i].email.trim());
     sendMailArr.push({ email: emailArr[i].email.trim() });
   }
 
-  console.log("5. sendMailArr : ", sendMailArr);
+  // console.log("5. sendMailArr : ", sendMailArr);
   const refinedDb = dbRefine(sendMailArr);
-  console.log("6. refinedDb : ", refinedDb);
+  // console.log("6. refinedDb : ", refinedDb);
 
   for (let i = 0; i < refinedDb.length; i++) {
     const msg = {
