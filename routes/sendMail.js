@@ -190,7 +190,8 @@ router.post("/", async (req, res, next) => {
 
   for (let i = 0; i < refinedDb.length; i++) {
     const msg = {
-      to: refinedDb[i].email,
+      to: refinedDb[i],
+      // to: refinedDb[i].email,
       from: "GanaProject <no-reply@ganacoin.io>",
       subject: emailTitle,
       text: emailTitle,
