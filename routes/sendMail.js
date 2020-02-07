@@ -203,6 +203,9 @@ router.post("/", async (req, res, next) => {
   const refinedDb = dbRefine(sendMailArr);
   // console.log("6. refinedDb : ", refinedDb);
 
+  let success = 0;
+  let error = 0;
+
   for (let i = 0; i < refinedDb.length; i++) {
     const msg = {
       to: refinedDb[i],
@@ -220,7 +223,7 @@ router.post("/", async (req, res, next) => {
       .sendMultiple(msg)
       .then(data => {
         console.log(JSON.stringify(data, null, 2));
-
+        success = success + 1;
         Log.create({
           category: "EMAIL",
           operName: "Send Mail (ALL)",
@@ -232,8 +235,8 @@ router.post("/", async (req, res, next) => {
       })
       .catch(err => {
         console.log(JSON.stringify(err, null, 2));
-        res.send("::sendmail::fail::");
-
+        // res.send("::sendmail::fail::");
+        error = error + 1;
         Log.create({
           category: "EMAIL",
           operName: "Send Mail (ALL)",
@@ -244,7 +247,14 @@ router.post("/", async (req, res, next) => {
         });
       });
   }
-  res.send("::sendmail::success::");
+
+  if (error !== 0) {
+    res.send("::sendmail::fail::");
+  } else if (error === 0 && success !== 0) {
+    res.send("::sendmail::success::");
+  } else {
+    res.send("::sendmail::fail::");
+  }
 });
 
 router.post("/test", async (req, res, next) => {
