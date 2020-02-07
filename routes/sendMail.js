@@ -208,7 +208,6 @@ router.post("/", async (req, res, next) => {
       .sendMultiple(msg)
       .then(data => {
         console.log(JSON.stringify(data, null, 2));
-        res.send("::sendmail::success::");
 
         Log.create({
           category: "EMAIL",
@@ -233,6 +232,7 @@ router.post("/", async (req, res, next) => {
         });
       });
   }
+  res.send("::sendmail::success::");
 });
 
 router.post("/test", async (req, res, next) => {
