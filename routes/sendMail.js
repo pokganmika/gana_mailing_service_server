@@ -63,10 +63,10 @@ const dbRefine = data => {
     }
 
     // ===== email regExpression =====
-    if (checkEmail(data[i].email)) {
+    if (checkEmail(data[i].email.trim())) {
       // tempArr.push(data[i]);
       // tempArr.push(data[i].email);
-      tempArr.push({ email: data[i].email });
+      tempArr.push({ email: data[i].email.trim() });
     }
   }
   result.push(tempArr);
