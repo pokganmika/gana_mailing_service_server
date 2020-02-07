@@ -61,13 +61,26 @@ const dbRefine = data => {
       result.push(passed);
       tempArr.splice(0);
     }
-    // tempArr.push(data[i]);
-    // tempArr.push(data[i].email);
-    tempArr.push({ email: data[i].email });
+
+    // ===== email regExpression =====
+    if (checkEmail(data[i].email)) {
+      // tempArr.push(data[i]);
+      // tempArr.push(data[i].email);
+      tempArr.push({ email: data[i].email });
+    }
   }
   result.push(tempArr);
   return result;
 };
+
+function checkEmail(val) {
+  var email = val;
+  var exptext = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,5}$/i;
+  if (exptext.test(email) === false) {
+    return false;
+  }
+  return true;
+}
 
 // ===== template module =====
 const infoMailOrigin =
