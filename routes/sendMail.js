@@ -190,7 +190,7 @@ router.post("/", async (req, res, next) => {
 
   for (let i = 0; i < refinedDb.length; i++) {
     const msg = {
-      to: refinedDb[i],
+      to: refinedDb[i].email,
       from: "GanaProject <no-reply@ganacoin.io>",
       subject: emailTitle,
       text: emailTitle,
@@ -227,8 +227,6 @@ router.post("/", async (req, res, next) => {
           target: "send all",
           time: moment().format("MMMM Do YYYY, h:mm:ss a"),
         });
-
-        // throw new Error('send grid mail - mail sending error (send mail)')
       });
   }
 });
