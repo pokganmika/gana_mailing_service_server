@@ -202,7 +202,19 @@ router.post("/", async (req, res, next) => {
 
     sgMail
       .sendMultiple(msg)
-      .then(data => console.log(JSON.stringify(data, null, 2)))
+      .then(data => {
+        console.log(JSON.stringify(data, null, 2));
+        res.send("::sendmail::success::");
+
+        Log.create({
+          category: "EMAIL",
+          operName: "Send Mail (ALL)",
+          status: true,
+          eventInitBy: "admin",
+          target: "send all",
+          time: moment().format("MMMM Do YYYY, h:mm:ss a"),
+        });
+      })
       .catch(err => {
         console.log(JSON.stringify(err, null, 2));
         res.send("::sendmail::fail::");
@@ -219,17 +231,6 @@ router.post("/", async (req, res, next) => {
         // throw new Error('send grid mail - mail sending error (send mail)')
       });
   }
-
-  Log.create({
-    category: "EMAIL",
-    operName: "Send Mail (ALL)",
-    status: true,
-    eventInitBy: "admin",
-    target: "send all",
-    time: moment().format("MMMM Do YYYY, h:mm:ss a"),
-  });
-
-  res.send("::sendmail::success::");
 });
 
 router.post("/test", async (req, res, next) => {
