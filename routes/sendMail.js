@@ -256,8 +256,6 @@ router.post("/test", async (req, res, next) => {
     .send(msg)
     .then(data => {
       console.log("testmail::send::success::");
-      res.send("testmail sending success");
-
       Log.create({
         category: "EMAIL",
         operName: "Test Mail Send",
@@ -280,6 +278,8 @@ router.post("/test", async (req, res, next) => {
         time: moment().format("MMMM Do YYYY, h:mm:ss a"),
       });
     });
+
+  res.send("testmail sending success");
 });
 
 /**
