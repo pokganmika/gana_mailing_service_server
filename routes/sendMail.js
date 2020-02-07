@@ -47,7 +47,7 @@ const shell = require("shelljs");
 // =====                            =====
 
 // ===== TODO: mail data =====
-// const mailData = require("../SubscribeTable.json");
+const mailData = require("../SubscribeTable.json");
 // const testMailData = require("../testSubscribeTable.json");
 // =====                 =====
 
