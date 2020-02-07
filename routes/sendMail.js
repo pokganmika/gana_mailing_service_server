@@ -61,7 +61,9 @@ const dbRefine = data => {
       result.push(passed);
       tempArr.splice(0);
     }
-    tempArr.push(data[i]);
+    // tempArr.push(data[i]);
+    tempArr.push(data[i].email);
+    // tempArr.push({ email: data[i].email });
   }
   result.push(tempArr);
   return result;
